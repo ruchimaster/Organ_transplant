@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - Smart Organ Transplant</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .container { width: 400px; margin: 50px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; }
+        label { display: block; margin-top: 10px; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; }
+        button { margin-top: 15px; padding: 10px; width: 100%; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .field-errors { color: red; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sign Up</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- User fields -->
+        <label>Username:</label>
+        {{ user_form.username }}
+        <div class="field-errors">{{ user_form.username.errors }}</div>
+
+        <label>Email:</label>
+        {{ user_form.email }}
+        <div class="field-errors">{{ user_form.email.errors }}</div>
+
+        <label>Password:</label>
+        {{ user_form.password1 }}
+        <div class="field-errors">{{ user_form.password1.errors }}</div>
+
+        <label>Confirm Password:</label>
+        {{ user_form.password2 }}
+        <div class="field-errors">{{ user_form.password2.errors }}</div>
+
+        <label>Role:</label>
+        {{ user_form.role }}
+        <div class="field-errors">{{ user_form.role.errors }}</div>
+
+        <hr>
+
+        <!-- Hospital fields -->
+        <div id="hospital-fields" style="display:none;">
+            <label>Hospital Name:</label>
+            {{ hospital_form.hospital_name }}
+
+            <label>Address:</label>
+            {{ hospital_form.address }}
+
+            <label>License Number:</label>
+            {{ hospital_form.license_number }}
+
+            <label>Contact Number:</label>
+            {{ hospital_form.contact_number }}
+        </div>
+
+        <!-- Person (Donor/Receiver) fields -->
+        <div id="user-fields" style="display:none;">
+            <label>Age:</label>
+            {{ person_form.age }}
+
+            <label>Gender:</label>
+            {{ person_form.gender }}
+
+            <label>Contact Number:</label>
+            {{ person_form.contact_number }}
+
+            <label>Blood Group:</label>
+            {{ person_form.blood_group }}
+
+            <label>Organ:</label>
+            {{ person_form.organ }}
+
+            <label>Medical Report:</label>
+            {{ person_form.medical_report }}
+        </div>
+
+        <button type="submit">Sign Up</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const roleField = document.getElementById("id_role");
+    const hospitalFields = document.getElementById("hospital-fields");
+    const userFields = document.getElementById("user-fields");
+
+    function toggleFields() {
+        const role = roleField.value.toLowerCase();
+
+        if (role === "hospital") {
+            hospitalFields.style.display = "block";
+            userFields.style.display = "none";
+        } 
+        else if (role === "donor" || role === "receiver") {
+            hospitalFields.style.display = "none";
+            userFields.style.display = "block";
+        } 
+        else {
+            hospitalFields.style.display = "none";
+            userFields.style.display = "none";
+        }
+    }
+
+    roleField.addEventListener("change", toggleFields);
+    toggleFields();
+});
+</script>
+
+</body>
+</html>
