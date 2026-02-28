@@ -1,0 +1,19 @@
+<h2>Receiver Dashboard</h2>
+
+<h3>Request Organ</h3>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Request Organ</button>
+</form>
+
+<h3>Your Requests</h3>
+
+<ul>
+    {% for r in requests %}
+        <li>{{ r.organ_required }} - {{ r.status }}</li>
+    {% empty %}
+        <li>No organ requests yet</li>
+    {% endfor %}
+</ul>

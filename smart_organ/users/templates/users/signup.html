@@ -74,11 +74,9 @@
             <label>Blood Group:</label>
             {{ person_form.blood_group }}
 
-            <label>Organ:</label>
-            {{ person_form.organ }}
 
-            <label>Medical Report:</label>
-            {{ person_form.medical_report }}
+            <!-- <label>Medical Report:</label>
+            {{ person_form.medical_report }} -->
         </div>
 
         <button type="submit">Sign Up</button>
@@ -87,31 +85,51 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
     const roleField = document.getElementById("id_role");
     const hospitalFields = document.getElementById("hospital-fields");
     const userFields = document.getElementById("user-fields");
+
+    function setDisabled(container, disabled) {
+        const inputs = container.querySelectorAll("input, select, textarea");
+        inputs.forEach(input => {
+            input.disabled = disabled;
+        });
+    }
 
     function toggleFields() {
         const role = roleField.value.toLowerCase();
 
         if (role === "hospital") {
+
             hospitalFields.style.display = "block";
             userFields.style.display = "none";
-        } 
+
+            setDisabled(hospitalFields, false); // enable
+            setDisabled(userFields, true);      // disable
+        }
         else if (role === "donor" || role === "receiver") {
+
             hospitalFields.style.display = "none";
             userFields.style.display = "block";
-        } 
+
+            setDisabled(hospitalFields, true);  // disable
+            setDisabled(userFields, false);     // enable
+        }
         else {
             hospitalFields.style.display = "none";
             userFields.style.display = "none";
+
+            setDisabled(hospitalFields, true);
+            setDisabled(userFields, true);
         }
     }
 
     roleField.addEventListener("change", toggleFields);
-    toggleFields();
+    toggleFields(); // run on page load
 });
 </script>
+
 
 </body>
 </html>
