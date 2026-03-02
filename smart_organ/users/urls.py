@@ -12,6 +12,6 @@ urlpatterns = [
     path("tracking/<int:match_id>/", views.view_tracking, name="view_tracking"),
     #path("tracking/<int:match_id>/update/", views.update_tracking, name="update_tracking"),
     path('update-status/<int:donation_id>/', views.update_status, name='update_status'),
-    path('contact/<int:hospital_id>/', views.contact_hospital, name='contact_hospital'),
-    path('notifications/', views.notifications, name='notifications'),
+    #path('contact/<int:hospital_id>/', views.contact_hospital, name='contact_hospital'),
+    #path('notifications/', views.notifications, name='notifications'),
 ]

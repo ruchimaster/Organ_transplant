@@ -114,8 +114,19 @@ def dashboard(request):
         })
 
     else:
-        return render(request, 'dashboard/hospital_dashboard.html')
+        #return render(request, 'dashboard/hospital_dashboard.html')
+        hospital = HospitalProfile.objects.get(user=request.user)
 
+        # Fetch all tracking objects related to this hospital
+        tracking_list = OrganTracking.objects.filter(
+            match__donor__donor__hospital=hospital
+        ).select_related(
+            'match', 'match__donor', 'match__donor__donor', 'match__receiver', 'match__receiver__receiver'
+        )
+
+        return render(request, 'dashboard/hospital_dashboard.html', {
+            'tracking_list': tracking_list
+        })
 
 def login_view(request):
    if request.method == 'POST':
