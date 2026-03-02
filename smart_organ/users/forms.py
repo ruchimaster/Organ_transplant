@@ -22,6 +22,18 @@ class HospitalProfileForm(forms.ModelForm):
         exclude = ['user']
 
 
+class OrganRequestForm(forms.ModelForm):
+    class Meta:
+        model = OrganRequest
+        exclude = ['receiver', 'status']
+
+
+class DonationRequestForm(forms.ModelForm):
+    class Meta:
+        model = DonationRequest
+        exclude = ['donor', 'status']
+
+
 
 class OrganRequestForm(forms.ModelForm):
    class Meta:
