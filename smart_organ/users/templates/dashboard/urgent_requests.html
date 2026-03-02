@@ -1,0 +1,10 @@
+<h2>Urgent Organ Requests</h2>
+
+{% for req in urgent %}
+<p>
+  Receiver: {{ req.receiver.username }} | Organ: {{ req.organ_type }} | Blood:
+  {{ req.blood_group }}
+</p>
+{% empty %}
+<p>No urgent requests.</p>
+{% endfor %}

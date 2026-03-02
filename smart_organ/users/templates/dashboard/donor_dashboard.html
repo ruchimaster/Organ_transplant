@@ -1,0 +1,18 @@
+<h2>Donor Dashboard</h2>
+
+<h3>Submit Donation Request</h3>
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Donate Organ</button>
+</form>
+
+<h3>Your Donations</h3>
+
+<ul>
+  {% for d in donations %}
+  <li>{{ d.organ }} - {{ d.status }}</li>
+  {% empty %}
+  <li>No donation requests yet</li>
+  {% endfor %}
+</ul>

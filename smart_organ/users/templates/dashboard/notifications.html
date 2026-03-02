@@ -1,0 +1,9 @@
+<h2>Notifications</h2>
+
+<ul>
+  {% for n in notes %}
+  <li>{{ n.message }} - {{ n.created_at }}</li>
+  {% empty %}
+  <li>No notifications</li>
+  {% endfor %}
+</ul>

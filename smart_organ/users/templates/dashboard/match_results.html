@@ -1,0 +1,11 @@
+<h2>Organ Matching Results</h2>
+
+{% for match in matches %}
+<p>
+  Donor: {{ match.donor.donor.user.username }} → Receiver:
+  {{match.receiver.receiver.user.username }}
+</p>
+{% empty %}
+<p>No matches found.</p>
+<a href="{% url 'track_organ' match.donor.id %}"> Track Organ </a>
+{% endfor %}

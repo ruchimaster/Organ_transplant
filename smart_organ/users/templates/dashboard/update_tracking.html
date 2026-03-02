@@ -1,0 +1,14 @@
+<h2>Update Organ Tracking</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label>Current Location:</label>
+  <input
+    type="text"
+    name="location"
+    value="{{ tracking.current_location }}"
+  /><br />
+  <label>Status:</label>
+  <input type="text" name="status" value="{{ tracking.status }}" /><br />
+  <button type="submit">Update</button>
+</form>
