@@ -79,7 +79,7 @@ DATABASES = {
         'NAME': 'Organ_transplant',  # your MySQL database name
         'USER': 'javauser1',          # XAMPP default user
         'PASSWORD': '123java',          # XAMPP default password (usually empty)
-        'HOST': 'localhost',
+        'HOST': '192.168.55.61',
         'PORT': '3307',
     }
 }
