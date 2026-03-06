@@ -1,0 +1,8 @@
+<h2>Contact {{ hospital.hospital_name }}</h2>
+
+<form method="POST">
+  {% csrf_token %}
+  <textarea name="message" rows="4" cols="40"></textarea>
+  <br />
+  <button type="submit">Send Message</button>
+</form>

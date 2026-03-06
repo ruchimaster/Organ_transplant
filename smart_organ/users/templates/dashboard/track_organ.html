@@ -1,0 +1,20 @@
+<h2>Organ Tracking</h2>
+
+{% if error %}
+<p>{{ error }}</p>
+{% elif tracking %}
+<p><strong>Match ID:</strong> {{ tracking.match.id }}</p>
+<p><strong>Donor:</strong> {{ tracking.match.donor.donor.user.username }}</p>
+<p>
+  <strong>Receiver:</strong> {{ tracking.match.receiver.receiver.user.username
+  }}
+</p>
+<p><strong>Current Location:</strong> {{ tracking.current_location }}</p>
+<p><strong>Status:</strong> {{ tracking.status }}</p>
+<p><strong>Last Updated:</strong> {{ tracking.last_updated }}</p>
+
+{% if user.role == "hospital" %}
+<a href="{% url 'update_tracking' tracking.match.id %}">Update Tracking</a>
+{% endif %} {% else %}
+<p>No tracking available.</p>
+{% endif %}
