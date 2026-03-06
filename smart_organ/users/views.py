@@ -152,7 +152,7 @@ def notifications_view(request):
 
     return render(request, "users/notifications.html", context)
 
-       if form.is_valid():
+    if form.is_valid():
            username = form.cleaned_data.get('username')
            password = form.cleaned_data.get('password')
 
@@ -163,11 +163,11 @@ def notifications_view(request):
            if user is not None:
                login(request, user)
                return redirect('dashboard')
-   else:
-       form = AuthenticationForm()
+           else:
+                form = AuthenticationForm()
 
 
-   return render(request, 'users/login.html', {'form': form})
+    return render(request, 'users/login.html', {'form': form})
 # Create your views here.
 # views.py
 
