@@ -144,11 +144,15 @@ def dashboard(request):
 
     else:
 
-        hospital = HospitalProfile.objects.get(user=user)
-
         tracking_list = OrganTracking.objects.filter(
-            match__match_status="Proposed"
-        ).select_related("match", "match__donor", "match__receiver")
+        match__match_status="Proposed"
+        ).select_related(
+        "match",
+        "match__donor",
+        "match__receiver"
+        )
+        for tracking in tracking_list:
+            tracking.css_class = get_status_class(tracking.status)
 
         return render(request, "dashboard/hospital_dashboard.html", {
             "tracking_list": tracking_list
@@ -237,10 +241,46 @@ def view_tracking(request, match_id):
     if not allowed:
         return redirect("dashboard")
 
+    STATUS_ORDER = [s[0] for s in OrganTracking.STATUS_CHOICES]
+
     return render(request, "dashboard/track_organ.html", {
-        "tracking": tracking
+        "tracking": tracking,
+        "status_order": STATUS_ORDER
     })
 
+@login_required
+def update_tracking(request, match_id):
+
+    match = get_object_or_404(OrganMatch, id=match_id)
+    tracking = get_object_or_404(OrganTracking, match=match)
+
+    if request.user.role != "hospital":
+        return redirect("dashboard")
+
+    if request.method == "POST":
+
+        tracking.status = request.POST.get("status")
+        tracking.current_location = request.POST.get("current_location")
+        tracking.save()
+
+        Notification.objects.create(
+            user=match.donor.donor.user,
+            message=f"Transport status updated: {tracking.status}"
+        )
+
+        Notification.objects.create(
+            user=match.receiver.receiver.user,
+            message=f"Transport status updated: {tracking.status}"
+        )
+
+        return redirect("view_tracking", match_id=match.id)
+
+    STATUS_LIST = [choice[0] for choice in OrganTracking.STATUS_CHOICES]
+
+    return render(request, "dashboard/update_tracking.html", {
+        "tracking": tracking,
+        "statuses": STATUS_LIST
+    })
 
 # ---------------------------------------------------
 # Priority Calculation
@@ -417,3 +457,76 @@ def match_history(request):
     return render(request, "dashboard/match_history.html", {
         "tracking_list": tracking_list
     })
+
+
+    # ---------------------------------------------------
+# Contact Hospital
+# ---------------------------------------------------
+from django.contrib import messages  # ensure messages is imported
+
+@login_required
+def contact_hospital(request, hospital_id):
+
+    hospital = get_object_or_404(HospitalProfile, id=hospital_id)
+
+    if request.method == "POST":
+        message_text = request.POST.get("message")
+
+        if message_text:
+            ContactMessage.objects.create(
+                sender=request.user,
+                hospital=hospital,
+                message=message_text
+            )
+            messages.success(request, "Message sent successfully!")
+            return redirect("dashboard")
+        else:
+            messages.error(request, "Message cannot be empty!")
+
+    return render(request, "dashboard/contact_hospital.html", {
+        "hospital": hospital
+    })
+
+
+# ---------------------------------------------------
+# Update Organ Status (Hospital Only)
+# ---------------------------------------------------
+
+@login_required
+def update_organ_status(request):
+    user = request.user
+    if user.role != "hospital":
+        messages.error(request, "You are not authorized to update organ status.")
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        tracking_id = request.POST.get("tracking_id")
+        new_status = request.POST.get("status")
+
+        try:
+            organ_tracking = OrganTracking.objects.get(id=tracking_id)
+            organ_tracking.status = new_status
+            organ_tracking.save()
+            messages.success(request, f"Organ status updated to '{new_status}' successfully!")
+        except OrganTracking.DoesNotExist:
+            messages.error(request, "Invalid Organ Tracking ID")
+
+    organs = OrganTracking.objects.all().select_related("match", "match__donor", "match__receiver")
+
+    return render(request, "users/update_organ_status.html", {"organs": organs})
+
+def get_status_class(status):
+
+    if status == "Transplant Completed":
+        return "status-green"
+
+    elif status == "In Transit":
+        return "status-orange"
+
+    elif status == "Picked Up":
+        return "status-blue"
+
+    elif status == "Ready for Transport":
+        return "status-yellow"
+
+    return "status-gray"
