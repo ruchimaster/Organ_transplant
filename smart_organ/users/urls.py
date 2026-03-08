@@ -6,7 +6,7 @@ urlpatterns = [
     # Signup page
     path('', views.signup, name='signup'),
     path('dashboard/', views.dashboard, name='dashboard'),
-
+    path("approve-match/<int:match_id>/", views.approve_match, name="approve_match"),
     path("notifications/", views.notifications_view, name="notifications"),
 
     path('login/', views.login_view, name='login'),

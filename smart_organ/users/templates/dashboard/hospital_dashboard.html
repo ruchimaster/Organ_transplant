@@ -1,23 +1,41 @@
 <h2>Hospital Dashboard</h2>
 <p>Hospital controls & monitoring will go here</p>
+
 <h2>Organ Tracking</h2>
 
 {% if tracking_list %} {% for tracking in tracking_list %}
+
 <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px">
   <p><strong>Match ID:</strong> {{ tracking.match.id }}</p>
+
   <p><strong>Donor:</strong> {{ tracking.match.donor.donor.user.username }}</p>
+
   <p>
     <strong>Receiver:</strong> {{ tracking.match.receiver.receiver.user.username
     }}
   </p>
+
   <p><strong>Current Location:</strong> {{ tracking.current_location }}</p>
+
   <p><strong>Status:</strong> {{ tracking.status }}</p>
+
   <p><strong>Last Updated:</strong> {{ tracking.last_updated }}</p>
 
   {% if user.role == "hospital" %}
-  <a href="{% url 'update_tracking' tracking.match.id %}">Update Tracking</a>
+
+  <!-- <a href="{% url 'update_tracking' tracking.match.id %}"> Update Tracking </a> -->
+
+  <br /><br />
+
+  <a href="{% url 'approve_match' tracking.match.id %}" class="btn btn-success">
+    Approve Match
+  </a>
+
   {% endif %}
 </div>
+
 {% endfor %} {% else %}
+
 <p>No tracking available.</p>
+
 {% endif %}

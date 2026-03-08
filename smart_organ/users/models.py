@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 # Create your models here.
 
 
@@ -10,8 +11,7 @@ class User(AbstractUser):
        ('receiver', 'Receiver'),
        ('hospital', 'Hospital')
    ]
-   role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-
+   role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="receiver")
 
    def __str__(self):
        return f"{self.username} ({self.role})"
@@ -37,7 +37,7 @@ class PersonProfile(models.Model):
 
 
    def __str__(self):
-       return f"{self.user.username} ({self.role})"
+       return f"{self.user.username} ({self.user.role})"
 
 
 class HospitalProfile(models.Model):
@@ -78,8 +78,7 @@ class OrganRequest(models.Model):
    license_number = models.CharField(max_length=50,default=0)
    medical_report = models.FileField(upload_to='organ_requests/')
    status = models.CharField(max_length=20, default='Pending')  # Pending, Matched, Transplanted
-
-
+   
    def __str__(self):
        return f"{self.receiver.user.username} - {self.organ_required}"
 
@@ -122,83 +121,75 @@ class DonationRequest(models.Model):
 class OrganMatch(models.Model):
     donor = models.ForeignKey(DonationRequest, on_delete=models.CASCADE)
     receiver = models.ForeignKey(OrganRequest, on_delete=models.CASCADE)
-    match_status = models.CharField(max_length=50, default="Matched")
+    match_status = models.CharField(max_length=50, default="proposed")
 
     def __str__(self):
+        return f"{self.donor.donor.user.username} → {self.receiver.receiver.user.username} ({self.receiver.organ_required})"
+# class ContactMessage(models.Model):
+#     hospital = models.ForeignKey(HospitalProfile, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     message = models.TextField()
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-        return self.hospital_name
-
-class ContactMessage(models.Model):
-    hospital = models.ForeignKey(HospitalProfile, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Message to {self.HospitalProfile.name}"
-
-  
-from django.conf import settings
+#     def __str__(self):
+#         return f"Message to {self.HospitalProfile.name}"
 
 
-class Notification(models.Model):
-    ORGAN_MATCH_FOUND = "organ_match_found"
-    URGENT_ORGAN_REQUEST = "urgent_organ_request"
-    DONATION_REQUEST_ACCEPTED = "donation_request_accepted"
+# class Notification(models.Model):
+#     ORGAN_MATCH_FOUND = "organ_match_found"
+#     URGENT_ORGAN_REQUEST = "urgent_organ_request"
+#     DONATION_REQUEST_ACCEPTED = "donation_request_accepted"
 
-    NOTIFICATION_TYPE_CHOICES = [
-        (ORGAN_MATCH_FOUND, "Organ Match Found"),
-        (URGENT_ORGAN_REQUEST, "Urgent Organ Request"),
-        (DONATION_REQUEST_ACCEPTED, "Donation Request Accepted"),
-    ]
+#     NOTIFICATION_TYPE_CHOICES = [
+#         (ORGAN_MATCH_FOUND, "Organ Match Found"),
+#         (URGENT_ORGAN_REQUEST, "Urgent Organ Request"),
+#         (DONATION_REQUEST_ACCEPTED, "Donation Request Accepted"),
+#     ]
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="notifications",
-    )
-    notification_type = models.CharField(
-        max_length=50,
-        choices=NOTIFICATION_TYPE_CHOICES,
-        default=ORGAN_MATCH_FOUND,
-    )
+#     user = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE,
+#         related_name="notifications",
+#     )
+#     notification_type = models.CharField(
+#         max_length=50,
+#         choices=NOTIFICATION_TYPE_CHOICES,
+#         default=ORGAN_MATCH_FOUND,
+#     )
 
     
 
-
 class OrganTracking(models.Model):
-    match = models.OneToOneField(OrganMatch, on_delete=models.CASCADE,null=True,
-    blank=True)
+    match = models.OneToOneField(
+        OrganMatch,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     current_location = models.CharField(max_length=255, default="At Donor Hospital")
     status = models.CharField(max_length=50, default="Ready for Transport")
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Tracking for {self.match.id}: {self.status}"
-
-
+        if self.match:
+            return f"Tracking for Match {self.match.id}: {self.status}"
+        return f"Tracking: {self.status}"
+    
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
-
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
-        status = "Read" if self.is_read else "Unread"
-        return f"[{status}] {self.get_notification_type_display()} → {self.user}"
+        return f"{self.user.username} - {self.message}"
 
     def mark_as_read(self):
         self.is_read = True
         self.save(update_fields=["is_read"])
-
-    def __str__(self):
-        return self.message
-
 
 class ContactMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
