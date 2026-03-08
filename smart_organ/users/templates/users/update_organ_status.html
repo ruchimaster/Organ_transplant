@@ -1,0 +1,43 @@
+<h2>Update Organ Status</h2>
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:green;">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Organ Tracking ID:</label>
+    <input type="number" name="tracking_id" required>
+
+    <br><br>
+
+    <label>Select Status:</label>
+    <select name="status">
+        <option value="available">Available</option>
+        <option value="matched">Matched</option>
+        <option value="in_transit">In Transit</option>
+        <option value="transplanted">Transplanted</option>
+    </select>
+
+    <br><br>
+
+    <button type="submit">Update Status</button>
+</form>
+
+<br>
+
+<h3>Existing Organ Tracking Records</h3>
+
+<ul>
+{% for organ in organs %}
+    <li>
+        ID: {{ organ.id }} |
+        Status: {{ organ.status }} |
+        Location: {{ organ.current_location }}
+    </li>
+{% endfor %}
+</ul>

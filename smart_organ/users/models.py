@@ -160,14 +160,33 @@ class OrganMatch(models.Model):
     
 
 class OrganTracking(models.Model):
+
+
+
+    STATUS_CHOICES = [
+        ("available", "Available"),
+        ("matched", "Matched"),
+        ("in_transit", "In Transit"),
+        ("transplanted", "Transplanted"),
+    ]
+
+
     match = models.OneToOneField(
         OrganMatch,
         on_delete=models.CASCADE,
         null=True,
         blank=True
     )
+
+
     current_location = models.CharField(max_length=255, default="At Donor Hospital")
-    status = models.CharField(max_length=50, default="Ready for Transport")
+
+    status = models.CharField(
+        max_length=50,
+        choices=STATUS_CHOICES,
+        default="available"
+    )
+
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):

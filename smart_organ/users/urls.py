@@ -17,5 +17,7 @@ urlpatterns = [
     path('update-status/<int:donation_id>/', views.update_status, name='update_status'),
     #path('contact/<int:hospital_id>/', views.contact_hospital, name='contact_hospital'),
     #path('notifications/', views.notifications, name='notifications'),
+    path('update-organ-status/', views.update_organ_status, name='update_organ_status'),
+    path('contact-hospital/<int:hospital_id>/', views.contact_hospital, name='contact_hospital'),
 
 ]
