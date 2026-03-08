@@ -212,14 +212,9 @@ def update_status(request, donation_id):
 @login_required
 def contact_hospital(request, hospital_id):
 
-
     hospital = get_object_or_404(HospitalProfile, id=hospital_id)
-=======
-    hospital = HospitalProfile.objects.get(id=hospital_id)
-
 
     if request.method == "POST":
-
         message = request.POST.get("message")
 
         ContactMessage.objects.create(
@@ -229,15 +224,9 @@ def contact_hospital(request, hospital_id):
         )
 
         messages.success(request, "Message sent successfully!")
-
-    return render(request, "users/contact_hospital.html", {"hospital": hospital})
         return redirect("dashboard")
 
-    return render(request, "dashboard/contact_hospital.html", {
-        "hospital": hospital
-    })
-
-
+    return render(request, "users/contact_hospital.html", {"hospital": hospital})
 # ---------------------------------------------------
 # Tracking View
 # ---------------------------------------------------
@@ -423,7 +412,7 @@ def approve_match(request, match_id):
         )
 
     return redirect("dashboard")
-=======
+
     return render(request, "dashboard/track_organ.html", {"tracking": tracking})
     from .models import OrganTracking
 from django.shortcuts import render, redirect
@@ -448,4 +437,4 @@ def update_organ_status(request):
     organs = OrganTracking.objects.all()
 
     return render(request, "users/update_organ_status.html", {"organs": organs})
->>>>>>> 51a187c (Implemented R9 Contact Hospital feature)
+

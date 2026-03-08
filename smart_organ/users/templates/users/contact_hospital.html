@@ -5,6 +5,9 @@
         <p style="color:green;">
             {{ message }}
         </p>
+        <a href="{% url 'contact_hospital' hospital.id %}">
+    Contact Hospital
+</a>
     {% endfor %}
 {% endif %}
 
