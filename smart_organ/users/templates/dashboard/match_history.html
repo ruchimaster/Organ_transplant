@@ -1,16 +1,8 @@
-<h2>Hospital Dashboard</h2>
-<p>Hospital controls & monitoring will go here</p>
-
-<h2>Organ Matching Requests for Approval</h2>
+<h2>Approved Matches History</h2>
 
 <style>
   .status-approved {
     color: green;
-    font-weight: bold;
-  }
-
-  .status-pending {
-    color: orange;
     font-weight: bold;
   }
 
@@ -33,7 +25,6 @@
 </style>
 
 {% if tracking_list %}
-
 <table class="match-table">
   <thead>
     <tr>
@@ -44,52 +35,25 @@
       <th>Status</th>
       <th>Current Location</th>
       <th>Last Updated</th>
-      <th>Action</th>
     </tr>
   </thead>
 
   <tbody>
     {% for tracking in tracking_list %}
-
     <tr>
       <td>{{ tracking.match.id }}</td>
-
       <td>{{ tracking.match.donor.donor.user.username }}</td>
-
       <td>{{ tracking.match.receiver.receiver.user.username }}</td>
-
       <td>{{ tracking.match.donor.organ }}</td>
-
       <td>
-        <span
-          class="{% if tracking.match.match_status == 'Approved' %} status-approved {% else %} status-pending {% endif %}"
-        >
-          {{ tracking.match.match_status }}
-        </span>
+        <span class="status-approved">{{ tracking.match.match_status }}</span>
       </td>
-
       <td>{{ tracking.current_location }}</td>
-
       <td>{{ tracking.last_updated }}</td>
-
-      <td>
-        {% if user.role == "hospital" %}
-        <a href="{% url 'approve_match' tracking.match.id %}"> Approve </a>
-        {% else %} N/A {% endif %}
-      </td>
     </tr>
-
     {% endfor %}
   </tbody>
 </table>
-
 {% else %}
-<p>No organ matches pending for approval.</p>
+<p>No approved matches found.</p>
 {% endif %}
-<br />
-
-<a href="{% url 'match_history' %}">
-  <button type="button" class="history-btn">
-    View Approved Matches History
-  </button>
-</a>
