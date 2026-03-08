@@ -158,41 +158,36 @@ class OrganMatch(models.Model):
 #     )
 
     
-
 class OrganTracking(models.Model):
 
-
-
     STATUS_CHOICES = [
-        ("available", "Available"),
-        ("matched", "Matched"),
-        ("in_transit", "In Transit"),
-        ("transplanted", "Transplanted"),
+        ("Ready for Transport", "Ready for Transport"),
+        ("Picked Up", "Picked Up"),
+        ("In Transit", "In Transit"),
+        ("Arrived at Receiver Hospital", "Arrived at Receiver Hospital"),
+        ("Handed Over to Surgery Team", "Handed Over to Surgery Team"),
+        ("Transplant Completed", "Transplant Completed")
     ]
 
-
     match = models.OneToOneField(
-        OrganMatch,
+        "OrganMatch",
         on_delete=models.CASCADE,
         null=True,
         blank=True
     )
-
 
     current_location = models.CharField(max_length=255, default="At Donor Hospital")
 
     status = models.CharField(
         max_length=50,
         choices=STATUS_CHOICES,
-        default="available"
+        default="Ready for Transport"
     )
 
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        if self.match:
-            return f"Tracking for Match {self.match.id}: {self.status}"
-        return f"Tracking: {self.status}"
+        return f"Tracking Match {self.match.id}"
     
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -1,41 +1,126 @@
 <h2>Hospital Dashboard</h2>
 <p>Hospital controls & monitoring will go here</p>
 
-<h2>Organ Tracking</h2>
+<h2>Organ Matching Requests for Approval</h2>
 
-{% if tracking_list %} {% for tracking in tracking_list %}
+<style>
+  .status-green {
+    background: green;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .status-orange {
+    background: orange;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .status-blue {
+    background: blue;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .status-yellow {
+    background: yellow;
+    color: black;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .status-gray {
+    background: gray;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
 
-<div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px">
-  <p><strong>Match ID:</strong> {{ tracking.match.id }}</p>
+  .status-approved {
+    color: green;
+    font-weight: bold;
+  }
 
-  <p><strong>Donor:</strong> {{ tracking.match.donor.donor.user.username }}</p>
+  .status-pending {
+    color: orange;
+    font-weight: bold;
+  }
 
-  <p>
-    <strong>Receiver:</strong> {{ tracking.match.receiver.receiver.user.username
-    }}
-  </p>
+  .match-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+  }
 
-  <p><strong>Current Location:</strong> {{ tracking.current_location }}</p>
+  .match-table th,
+  .match-table td {
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #eee;
+  }
 
-  <p><strong>Status:</strong> {{ tracking.status }}</p>
+  .match-table thead {
+    background: #f2f2f2;
+  }
+</style>
 
-  <p><strong>Last Updated:</strong> {{ tracking.last_updated }}</p>
+{% if tracking_list %}
 
-  {% if user.role == "hospital" %}
+<table class="match-table">
+  <thead>
+    <tr>
+      <th>Match ID</th>
+      <th>Donor</th>
+      <th>Receiver</th>
+      <th>Organ</th>
+      <th>Status</th>
+      <th>Current Location</th>
+      <th>Last Updated</th>
+      <th>Action</th>
+    </tr>
+  </thead>
 
-  <!-- <a href="{% url 'update_tracking' tracking.match.id %}"> Update Tracking </a> -->
+  <tbody>
+    {% for tracking in tracking_list %}
 
-  <br /><br />
+    <tr>
+      <td>{{ tracking.match.id }}</td>
 
-  <a href="{% url 'approve_match' tracking.match.id %}" class="btn btn-success">
-    Approve Match
-  </a>
+      <td>{{ tracking.match.donor.donor.user.username }}</td>
 
-  {% endif %}
-</div>
+      <td>{{ tracking.match.receiver.receiver.user.username }}</td>
 
-{% endfor %} {% else %}
+      <td>{{ tracking.match.donor.organ }}</td>
 
-<p>No tracking available.</p>
+      <td>
+        <span
+          class="{% if tracking.match.match_status == 'Approved' %} status-approved {% else %} status-pending {% endif %}"
+        >
+          {{ tracking.match.match_status }}
+        </span>
+      </td>
 
+      <td>{{ tracking.current_location }}</td>
+
+      <td>{{ tracking.last_updated }}</td>
+
+      <td>
+        {% if user.role == "hospital" %}
+        <a href="{% url 'approve_match' tracking.match.id %}"> Approve </a>
+        {% else %} N/A {% endif %}
+      </td>
+    </tr>
+
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<p>No organ matches pending for approval.</p>
 {% endif %}
+<br />
+
+<a href="{% url 'match_history' %}">
+  <button type="button" class="history-btn">
+    View Approved Matches History
+  </button>
+</a>
