@@ -217,6 +217,36 @@ def update_status(request, donation_id):
 
     return redirect("dashboard")
 
+
+
+# ---------------------------------------------------
+# Contact Hospital
+# ---------------------------------------------------
+
+@login_required
+def contact_hospital(request, hospital_id):
+
+    hospital = get_object_or_404(HospitalProfile, id=hospital_id)
+
+    if request.method == "POST":
+        message = request.POST.get("message")
+
+        ContactMessage.objects.create(
+            sender=request.user,
+            hospital=hospital,
+            message=message
+        )
+
+        messages.success(request, "Message sent successfully!")
+        return redirect("dashboard")
+
+    return render(request, "users/contact_hospital.html", {"hospital": hospital})
+# ---------------------------------------------------
+# Tracking View
+# ---------------------------------------------------
+
+
+
 @login_required
 def view_tracking(request, match_id):
 
@@ -436,6 +466,14 @@ def approve_match(request, match_id):
     return redirect("dashboard")
 
 
+    return render(request, "dashboard/track_organ.html", {"tracking": tracking})
+    from .models import OrganTracking
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+
+
+
 # ---------------------------------------------------
 # Match History
 # ---------------------------------------------------
@@ -514,6 +552,8 @@ def update_organ_status(request):
     organs = OrganTracking.objects.all().select_related("match", "match__donor", "match__receiver")
 
     return render(request, "users/update_organ_status.html", {"organs": organs})
+
+
 
 def get_status_class(status):
 
