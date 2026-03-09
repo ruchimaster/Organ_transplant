@@ -1,0 +1,16 @@
+body {
+  background: #f4f6fb;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+  color: #333;
+}
+
+.nav-link:hover {
+  background: #ddd;
+}

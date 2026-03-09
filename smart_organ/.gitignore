@@ -2,3 +2,6 @@ env/
 __pycache__/
 *.pyc
 db.sqlite3
+donation_requests/
+medical_reports/
+organ_requests/
