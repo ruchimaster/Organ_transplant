@@ -223,24 +223,7 @@ def update_status(request, donation_id):
 # Contact Hospital
 # ---------------------------------------------------
 
-@login_required
-def contact_hospital(request, hospital_id):
 
-    hospital = get_object_or_404(HospitalProfile, id=hospital_id)
-
-    if request.method == "POST":
-        message = request.POST.get("message")
-
-        ContactMessage.objects.create(
-            sender=request.user,
-            hospital=hospital,
-            message=message
-        )
-
-        messages.success(request, "Message sent successfully!")
-        return redirect("dashboard")
-
-    return render(request, "users/contact_hospital.html", {"hospital": hospital})
 # ---------------------------------------------------
 # Tracking View
 # ---------------------------------------------------
@@ -570,3 +553,16 @@ def get_status_class(status):
         return "status-yellow"
 
     return "status-gray"
+@login_required
+def hospital_messages(request):
+
+    if request.user.role != "hospital":
+        return redirect("dashboard")
+
+    hospital = HospitalProfile.objects.get(user=request.user)
+
+    messages = ContactMessage.objects.filter(hospital=hospital).order_by("-sent_at")
+
+    return render(request, "dashboard/hospital_messages.html", {
+        "messages": messages
+    })

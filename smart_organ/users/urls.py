@@ -16,6 +16,7 @@ urlpatterns = [
     path('tracking/<int:match_id>/', views.view_tracking, name="view_tracking"),
     path('tracking/<int:match_id>/update/', views.update_tracking, name="update_tracking"),
     path('update-organ-status/', views.update_organ_status, name='update_organ_status'),
-    path('contact-hospital/<int:hospital_id>/', views.contact_hospital, name='contact_hospital'),
+    path('contact-hospital/', views.contact_hospital, name='contact_hospital'),
+    path('hospital/messages/', views.hospital_messages, name='hospital_messages'),
 
 ]
