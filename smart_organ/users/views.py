@@ -144,19 +144,19 @@ def dashboard(request):
 
     else:
 
-        tracking_list = OrganTracking.objects.filter(
+        match_organs(request)
+
+    tracking_list = OrganTracking.objects.filter(
         match__match_status="Proposed"
-        ).select_related(
+    ).select_related(
         "match",
         "match__donor",
         "match__receiver"
-        )
-        for tracking in tracking_list:
-            tracking.css_class = get_status_class(tracking.status)
+    )
 
-        return render(request, "dashboard/hospital_dashboard.html", {
-            "tracking_list": tracking_list
-        })
+    return render(request, "dashboard/hospital_dashboard.html", {
+        "tracking_list": tracking_list
+    })
 
 
 # ---------------------------------------------------
@@ -289,10 +289,19 @@ def update_tracking(request, match_id):
         return redirect("view_tracking", match_id=match.id)
 
     STATUS_LIST = [choice[0] for choice in OrganTracking.STATUS_CHOICES]
-
+    LOCATION_LIST = [
+    "At Donor Hospital",
+    "Ambulance - City Route",
+    "Airport - Departure",
+    "In Flight",
+    "Airport - Arrival",
+    "Ambulance - Receiver Route",
+    "At Receiver Hospital"
+]
     return render(request, "dashboard/update_tracking.html", {
         "tracking": tracking,
-        "statuses": STATUS_LIST
+        "statuses": STATUS_LIST,
+        "locations": LOCATION_LIST
     })
 
 # ---------------------------------------------------
@@ -359,7 +368,7 @@ def match_organs(request):
         OrganMatch.objects.filter(
             donor=donation,
             match_status="Proposed"
-        ).update(match_status="Rejected")
+        ).update(match_status="Proposed")
 
         candidates = []
 

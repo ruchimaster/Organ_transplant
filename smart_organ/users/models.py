@@ -121,7 +121,7 @@ class DonationRequest(models.Model):
 class OrganMatch(models.Model):
     donor = models.ForeignKey(DonationRequest, on_delete=models.CASCADE)
     receiver = models.ForeignKey(OrganRequest, on_delete=models.CASCADE)
-    match_status = models.CharField(max_length=50, default="proposed")
+    match_status = models.CharField(max_length=50, default="Proposed")
 
     def __str__(self):
         return f"{self.donor.donor.user.username} → {self.receiver.receiver.user.username} ({self.receiver.organ_required})"

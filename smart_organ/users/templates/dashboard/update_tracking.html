@@ -2,13 +2,28 @@
 
 <form method="post">
   {% csrf_token %}
+
+  <!-- Location -->
   <label>Current Location:</label>
-  <input
-    type="text"
-    name="location"
-    value="{{ tracking.current_location }}"
-  /><br />
+  <select name="current_location">
+    {% for loc in locations %} {% if loc == tracking.current_location %}
+    <option value="{{ loc }}" selected>{{ loc }}</option>
+    {% else %}
+    <option value="{{ loc }}">{{ loc }}</option>
+    {% endif %} {% endfor %}
+  </select>
+  <br /><br />
+
+  <!-- Status -->
   <label>Status:</label>
-  <input type="text" name="status" value="{{ tracking.status }}" /><br />
+  <select name="status">
+    {% for s in statuses %} {% if s == tracking.status %}
+    <option value="{{ s }}" selected>{{ s }}</option>
+    {% else %}
+    <option value="{{ s }}">{{ s }}</option>
+    {% endif %} {% endfor %}
+  </select>
+  <br /><br />
+
   <button type="submit">Update</button>
 </form>
