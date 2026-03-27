@@ -1,13 +1,16 @@
-
 <h1>Notifications</h1>
 
 {% if notifications %}
 <ul>
-    {% for notification in notifications %}
-        <li style="{% if not notification.is_read %}font-weight:bold;{% endif %}">
-            {{ notification.message }} - {{ notification.created_at }}
-        </li>
-    {% endfor %}
+  {% for notification in notifications %} {% if not notification.is_read %}
+  <li style="font-weight: bold">{% else %}</li>
+
+  <li>
+    {% endif %} {{ notification.message }} - {{ notification.created_at|date:"M
+    d, Y H:i" }}
+  </li>
+
+  {% endfor %}
 </ul>
 {% else %}
 <p>No notifications available.</p>
