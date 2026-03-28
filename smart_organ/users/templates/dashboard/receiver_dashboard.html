@@ -8,13 +8,7 @@
   <button type="submit">Request Organ</button>
 </form>
 
-<h3>Your Requests</h3>
-
-<ul>
-  {% for r in requests %}
-  <li>{{ r.organ_required }} - {{ r.status }}</li>
-  {% empty %}
-  <li>No organ requests yet</li>
-  {% endfor %}
-</ul>
+<a href="{% url 'total_receiver_requests' %}">
+    <button>View All Requests</button>
+</a>
 {% endblock %}

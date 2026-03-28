@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Donor Dashboard</h2>
+
+<h3>Your Donations</h3>
+<ul>
+  {% for d in donations %}
+  <li>{{ d.organ }}</li>
+  {% empty %}
+  <li>No donation requests yet</li>
+  {% endfor %}
+</ul>
+
+
+<a href="{% url 'dashboard' %}">Back to Dashboard</a>
+{% endblock %}

@@ -111,6 +111,7 @@ def dashboard(request):
                 donation = form.save(commit=False)
                 donation.donor = profile
                 donation.save()
+                return redirect("total_donor_requests")
 
         else:
             form = DonationRequestForm()
@@ -134,6 +135,7 @@ def dashboard(request):
                 req = form.save(commit=False)
                 req.receiver = profile
                 req.save()
+                return redirect("total_receiver_requests")
 
         else:
             form = OrganRequestForm()
@@ -577,27 +579,51 @@ def contact_hospital(request, hospital_id):
 @login_required
 def update_organ_status(request):
     user = request.user
+
     if user.role != "hospital":
         messages.error(request, "You are not authorized to update organ status.")
         return redirect("dashboard")
 
+    LOCATION_LIST = [
+        "At Donor Hospital",
+        "Ambulance - City Route",
+        "Airport - Departure",
+        "In Flight",
+        "Airport - Arrival",
+        "Ambulance - Receiver Route",
+        "At Receiver Hospital"
+    ]
+
+    STATUS_LIST = [choice[0] for choice in OrganTracking.STATUS_CHOICES]
+
     if request.method == "POST":
         tracking_id = request.POST.get("tracking_id")
         new_status = request.POST.get("status")
+        new_location = request.POST.get("current_location")
 
         try:
             organ_tracking = OrganTracking.objects.get(id=tracking_id)
+
             organ_tracking.status = new_status
+            organ_tracking.current_location = new_location
             organ_tracking.save()
-            messages.success(request, f"Organ status updated to '{new_status}' successfully!")
+
+            messages.success(request, "Tracking updated successfully!")
+
         except OrganTracking.DoesNotExist:
             messages.error(request, "Invalid Organ Tracking ID")
 
-    organs = OrganTracking.objects.all().select_related("match", "match__donor", "match__receiver")
+    # ✅ Split data
+    active_organs = OrganTracking.objects.exclude(status="Transplant Completed")
+    completed_organs = OrganTracking.objects.filter(status="Transplant Completed")
 
-    return render(request, "users/update_organ_status.html", {"organs": organs})
-
-
+    return render(request, "users/update_organ_status.html", {
+        "organs": active_organs,  # dropdown uses active only
+        "active_organs": active_organs,
+        "completed_organs": completed_organs,
+        "statuses": STATUS_LIST,
+        "locations": LOCATION_LIST
+    })
 
 def get_status_class(status):
 
@@ -626,4 +652,51 @@ def hospital_messages(request):
 
     return render(request, "dashboard/hospital_messages.html", {
         "messages": messages
+    })
+
+
+@login_required
+def total_receiver_requests(request):
+
+    profile = PersonProfile.objects.get(user=request.user)
+
+    requests = OrganRequest.objects.filter(receiver=profile)
+
+    return render(request, "dashboard/Total_Receiver_Request.html", {
+        "requests": requests
+    })
+
+
+@login_required
+def total_donor_requests(request):
+
+    profile = PersonProfile.objects.get(user=request.user)
+
+    donations = DonationRequest.objects.filter(donor=profile)
+
+    return render(request, "dashboard/Total_Donor_Request.html", {
+        "donations": donations
+    })
+
+
+@login_required
+def tracking_list(request):
+    user = request.user
+
+    if user.role == "receiver":
+        profile = PersonProfile.objects.get(user=user)
+        tracking_list = OrganTracking.objects.filter(
+            match__receiver__receiver=profile
+        ).select_related("match", "match__donor", "match__receiver")
+
+    elif user.role == "hospital":
+        tracking_list = OrganTracking.objects.all().select_related(
+            "match", "match__donor", "match__receiver"
+        )
+
+    else:  # donor sees no tracking
+        tracking_list = None
+
+    return render(request, "dashboard/tracking_list.html", {
+        "tracking_list": tracking_list
     })

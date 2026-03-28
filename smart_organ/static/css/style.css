@@ -1,91 +1,94 @@
-/* Sidebar */
-.sidebar {
-  height: 100vh;
-  padding-top: 30px;
+/* 🌟 Page background */
+body {
+  background-color: #eaf4ff;
+  font-family: "Segoe UI", sans-serif;
 }
 
-.sidebar .nav-link {
-  color: white;
-  padding: 10px 15px;
-  margin: 5px 0;
-  border-radius: 8px;
-  transition: 0.3s;
+html,
+body {
+  height: 100%;
 }
-.sidebar .nav-link:hover {
-  background: rgba(255, 255, 255, 0.2);
-  text-decoration: none;
+/* Navbar */
+.navbar {
+  border-bottom: 1px solid #e2e8f0;
 }
 
-/* Dashboard Hero */
-.hero-dashboard {
-  height: 25vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    to right,
-    #16a34a,
-    #4ade80
-  ); /* Green gradient for donor */
-  border-radius: 12px;
-  margin-bottom: 30px;
-}
-/* Sidebar */
-.sidebar {
-  height: 100vh;
-  padding-top: 30px;
+/* Layout spacing */
+.container-fluid {
+  max-width: 1150px;
 }
 
-.sidebar .nav-link {
-  color: white;
-  padding: 10px 15px;
-  margin: 5px 0;
-  border-radius: 8px;
-  transition: 0.3s;
-}
-.sidebar .nav-link:hover {
-  background: rgba(255, 255, 255, 0.2);
-  text-decoration: none;
+/* Space between sidebar & content */
+.row {
+  gap: 24px;
+  align-items: stretch; /* 🔥 makes sidebar full height */
 }
 
-/* Dashboard Hero */
-.hero-dashboard {
-  height: 25vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    to right,
-    #16a34a,
-    #4ade80
-  ); /* Green gradient for donor */
-  border-radius: 12px;
-  margin-bottom: 30px;
-}
-
-/* Cards */
-.card-box {
+/* 🌟 Sidebar Card */
+.sidebar-card {
+  border-radius: 16px;
+  padding: 28px;
   background: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s;
-}
-.card-box:hover {
-  transform: translateY(-5px);
+  min-height: 85vh; /* long sidebar */
+  height: 100%; /* fill column */
+  display: flex;
+  flex-direction: column;
+  /* stretch content */
 }
 
-/* Buttons */
-.btn-lg {
+/* 🌟 Main Content Card */
+.main-card {
+  border-radius: 18px;
+  background: #ffffff;
+  min-height: 520px;
+}
+
+/* 🌟 Card shadow (clean soft UI) */
+.card {
+  border: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* 🌟 Navigation links */
+.nav-link {
+  display: block;
+  padding: 12px 14px;
+  margin: 6px 0;
+  color: #334155;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+/* Hover effect */
+.nav-link:hover {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+/* 🌟 Fix form spacing inside card */
+.main-card form,
+.main-card input,
+.main-card select,
+.main-card textarea {
+  margin-bottom: 12px;
+}
+
+/* 🌟 Make textarea nicer */
+textarea {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* 🌟 Inputs */
+input,
+select {
   border-radius: 8px;
-  padding: 12px 30px;
-  font-weight: 600;
+  padding: 6px 8px;
 }
 
-/* Tables */
-.table-hover tbody tr:hover {
-  background-color: #f1f5f9;
-}
-.table-dark th {
-  background-color: #065f46; /* Dark green for donor */
+/* 🌟 Button */
+button,
+.btn {
+  border-radius: 8px;
 }
