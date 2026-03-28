@@ -1,3 +1,4 @@
+{% extends 'base.html' %} {% block content %}
 <h2>Organ Matching Results</h2>
 
 {% for match in matches %}
@@ -7,7 +8,7 @@
   {{match.receiver.receiver.user.username }}
 </p>
 
-<a href="{% url 'view_tracking' match.id %}"> Track Organ </a>
+<!-- <a href="{% url 'view_tracking' match.id %}"> Track Organ </a> -->
 
 <br /><br />
 
@@ -16,3 +17,4 @@
 <p>No matches found.</p>
 
 {% endfor %}
+{% endblock %}

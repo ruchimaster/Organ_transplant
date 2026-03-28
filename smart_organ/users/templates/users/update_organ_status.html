@@ -1,43 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <h2>Update Organ Status</h2>
-{% if messages %}
-    {% for message in messages %}
-        <p style="color:green;">
-            {{ message }}
-        </p>
+
+<form method="post">
+  {% csrf_token %}
+
+  <!-- Tracking ID Dropdown -->
+  <label>Organ Tracking:</label>
+  <select name="tracking_id">
+    {% for organ in organs %}
+      <option value="{{ organ.id }}">
+        ID {{ organ.id }}
+      </option>
     {% endfor %}
-{% endif %}
+  </select>
+  <br><br>
 
-<form method="POST">
-    {% csrf_token %}
+  <!-- Location Dropdown -->
+  <label>Current Location:</label>
+  <select name="current_location">
+    {% for loc in locations %}
+      <option value="{{ loc }}">{{ loc }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
 
-    <label>Organ Tracking ID:</label>
-    <input type="number" name="tracking_id" required>
+  <!-- Status Dropdown -->
+  <label>Status:</label>
+  <select name="status">
+    {% for s in statuses %}
+      <option value="{{ s }}">{{ s }}</option>
+    {% endfor %}
+  </select>
+  <br><br>
 
-    <br><br>
-
-    <label>Select Status:</label>
-    <select name="status">
-        <option value="available">Available</option>
-        <option value="matched">Matched</option>
-        <option value="in_transit">In Transit</option>
-        <option value="transplanted">Transplanted</option>
-    </select>
-
-    <br><br>
-
-    <button type="submit">Update Status</button>
+  <button type="submit">Update</button>
 </form>
 
-<br>
+<br><br>
 
-<h3>Existing Organ Tracking Records</h3>
-
+<!-- ✅ ACTIVE TRACKING -->
+<h3>Active Organ Tracking</h3>
 <ul>
-{% for organ in organs %}
+{% for organ in active_organs %}
     <li>
         ID: {{ organ.id }} |
         Status: {{ organ.status }} |
         Location: {{ organ.current_location }}
     </li>
+{% empty %}
+    <li>No active tracking records</li>
 {% endfor %}
 </ul>
+
+<br>
+
+<!-- ✅ COMPLETED JOURNEY -->
+<h3>Completed Journey</h3>
+<ul>
+{% for organ in completed_organs %}
+    <li>
+        ID: {{ organ.id }} |
+        Status: {{ organ.status }} |
+        Location: {{ organ.current_location }}
+    </li>
+{% empty %}
+    <li>No completed journeys</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
