@@ -1,128 +1,67 @@
 {% extends 'base.html' %} {% block content %}
-<h2>Hospital Dashboard</h2>
-<p>Hospital controls & monitoring will go here</p>
 
-<h2>Organ Matching Requests for Approval</h2>
+<h2>Welcome, {{ user.username }}</h2>
 
-<style>
-  .status-green {
-    background: green;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-  }
-  .status-orange {
-    background: orange;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-  }
-  .status-blue {
-    background: blue;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-  }
-  .status-yellow {
-    background: yellow;
-    color: black;
-    padding: 5px;
-    border-radius: 5px;
-  }
-  .status-gray {
-    background: gray;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-  }
+<!-- Summary / Pending Matches -->
+<div class="card card-box mb-4">
+  <h4>Pending Matches</h4>
 
-  .status-approved {
-    color: green;
-    font-weight: bold;
-  }
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Donor</th>
+        <th>Receiver</th>
+        <th>Organ</th>
+        <th>Action</th>
+      </tr>
+    </thead>
 
-  .status-pending {
-    color: orange;
-    font-weight: bold;
-  }
+    <tbody>
+      {% for t in tracking_list %}
+      <tr>
+        <td>{{ t.match.donor.donor.user.username }}</td>
+        <td>{{ t.match.receiver.receiver.user.username }}</td>
+        <td>{{ t.match.donor.organ }}</td>
+        <td>
+          {% if t.button_disabled %}
+          <button class="btn btn-warning btn-sm" disabled>
+            {{ t.button_label }}
+          </button>
+          {% else %}
+          <a
+            href="{% url 'approve_match' t.match.id %}"
+            class="btn btn-success btn-sm"
+            >{{ t.button_label }}</a
+          >
+          {% endif %} {% if t.show_track_button %}
+          <a href="{% url 'view_tracking' t.match.id %}">
+            <button class="btn btn-primary btn-sm">Track Organ</button>
+          </a>
+          {% endif %}
+        </td>
+      </tr>
 
-  .match-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-  }
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No pending matches</td>
+      </tr>
 
-  .match-table th,
-  .match-table td {
-    padding: 10px;
-    text-align: center;
-    border-top: 1px solid #eee;
-  }
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-  .match-table thead {
-    background: #f2f2f2;
-  }
-</style>
+<!-- Actions -->
+<div class="card card-box text-center">
+  <h4>Actions</h4>
 
-{% if tracking_list %}
+  <a href="{% url 'match_history' %}" class="btn btn-primary w-50 my-2">
+    View Match History
+  </a>
 
-<table class="match-table">
-  <thead>
-    <tr>
-      <th>Match ID</th>
-      <th>Donor</th>
-      <th>Receiver</th>
-      <th>Organ</th>
-      <th>Status</th>
-      <th>Current Location</th>
-      <th>Last Updated</th>
-      <th>Action</th>
-    </tr>
-  </thead>
+  <a href="{% url 'notifications' %}" class="btn btn-info w-50 my-2">
+    Notifications
+  </a>
+</div>
 
-  <tbody>
-    {% for tracking in tracking_list %}
-
-    <tr>
-      <td>{{ tracking.match.id }}</td>
-
-      <td>{{ tracking.match.donor.donor.user.username }}</td>
-
-      <td>{{ tracking.match.receiver.receiver.user.username }}</td>
-
-      <td>{{ tracking.match.donor.organ }}</td>
-
-      <td>
-        <span
-          class="{% if tracking.match.match_status == 'Approved' %} status-approved {% else %} status-pending {% endif %}"
-        >
-          {{ tracking.match.match_status }}
-        </span>
-      </td>
-
-      <td>{{ tracking.current_location }}</td>
-
-      <td>{{ tracking.last_updated }}</td>
-
-      <td>
-        {% if user.role == "hospital" %}
-        <a href="{% url 'approve_match' tracking.match.id %}"> Approve </a>
-        {% else %} N/A {% endif %}
-      </td>
-    </tr>
-
-    {% endfor %}
-  </tbody>
-</table>
-
-{% else %}
-<p>No organ matches pending for approval.</p>
-{% endif %}
-<br />
-
-<a href="{% url 'match_history' %}">
-  <button type="button" class="history-btn">
-    View Approved Matches History
-  </button>
-</a>
 {% endblock %}

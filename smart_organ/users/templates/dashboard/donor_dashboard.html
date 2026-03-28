@@ -1,20 +1,26 @@
 {% extends 'base.html' %} {% block content %}
+
 <h2>Donor Dashboard</h2>
 
-<h3>Submit Donation Request</h3>
+<div class="card-box">
+  <h4>Donate Organ</h4>
 
-<form method="POST" enctype="multipart/form-data">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">Donate Organ</button>
-</form>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %} {{ form.as_p }}
+    <button class="btn btn-dark">Submit Donation</button>
+  </form>
+</div>
 
-<h3>Your Donations</h3>
+<div class="card-box">
+  <h4>Your Donations</h4>
 
-<ul>
-  {% for d in donations %}
-  <li>{{ d.organ }} - {{ d.status }}</li>
-  {% empty %}
-  <li>No donation requests yet</li>
-  {% endfor %}
-</ul>
+  <ul>
+    {% for d in donations %}
+    <li>{{ d.organ }} - {{ d.status }}</li>
+    {% empty %}
+    <li>No donations yet</li>
+    {% endfor %}
+  </ul>
+</div>
+
 {% endblock %}

@@ -1,0 +1,135 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Smart Organ Transplant System</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <style>
+      .hero {
+        height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(to right, #0f172a, #1e293b);
+        color: white;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 50px;
+        font-weight: bold;
+      }
+
+      .hero p {
+        font-size: 18px;
+        margin-top: 10px;
+      }
+
+      .btn-custom {
+        margin: 10px;
+        padding: 12px 25px;
+        font-size: 16px;
+      }
+
+      .features {
+        padding: 60px 0;
+        text-align: center;
+      }
+
+      .feature-box {
+        padding: 20px;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      footer {
+        background: #0f172a;
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand fw-bold">Smart Organ Transplant</a>
+
+        <div class="ms-auto">
+          <a href="{% url 'login' %}" class="btn btn-outline-light me-2"
+            >Login</a
+          >
+          <a href="{% url 'signup' %}" class="btn btn-warning">Sign Up</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div>
+        <h1>Save Lives with Smart Organ Matching</h1>
+        <p>
+          Connecting donors, receivers, and hospitals through an intelligent
+          system
+        </p>
+
+        <a href="{% url 'signup' %}" class="btn btn-warning btn-custom">
+          Get Started
+        </a>
+
+        <a href="{% url 'login' %}" class="btn btn-outline-light btn-custom">
+          Login
+        </a>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features container">
+      <h2 class="mb-5">System Features</h2>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="feature-box">
+            <h4>🔍 Smart Matching</h4>
+            <p>
+              Automatically matches donors and receivers using priority
+              algorithm
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-box">
+            <h4>📍 Live Tracking</h4>
+            <p>Track organ transport in real-time from donor to receiver</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-box">
+            <h4>🔔 Notifications</h4>
+            <p>Instant alerts for matches, approvals, and updates</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>© 2026 Smart Organ Transplant System | Final Year Project</p>
+    </footer>
+  </body>
+</html>

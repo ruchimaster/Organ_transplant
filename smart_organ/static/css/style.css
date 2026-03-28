@@ -1,16 +1,91 @@
-body {
-  background: #f4f6fb;
+/* Sidebar */
+.sidebar {
+  height: 100vh;
+  padding-top: 30px;
 }
 
-.card {
-  border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.sidebar .nav-link {
+  color: white;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  text-decoration: none;
 }
 
-.nav-link {
-  color: #333;
+/* Dashboard Hero */
+.hero-dashboard {
+  height: 25vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    to right,
+    #16a34a,
+    #4ade80
+  ); /* Green gradient for donor */
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+/* Sidebar */
+.sidebar {
+  height: 100vh;
+  padding-top: 30px;
 }
 
-.nav-link:hover {
-  background: #ddd;
+.sidebar .nav-link {
+  color: white;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  text-decoration: none;
+}
+
+/* Dashboard Hero */
+.hero-dashboard {
+  height: 25vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    to right,
+    #16a34a,
+    #4ade80
+  ); /* Green gradient for donor */
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+/* Cards */
+.card-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s;
+}
+.card-box:hover {
+  transform: translateY(-5px);
+}
+
+/* Buttons */
+.btn-lg {
+  border-radius: 8px;
+  padding: 12px 30px;
+  font-weight: 600;
+}
+
+/* Tables */
+.table-hover tbody tr:hover {
+  background-color: #f1f5f9;
+}
+.table-dark th {
+  background-color: #065f46; /* Dark green for donor */
 }

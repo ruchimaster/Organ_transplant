@@ -4,7 +4,8 @@ from . import views
 urlpatterns = [
 
     # Signup page
-    path('', views.signup, name='signup'),
+    path('', views.home, name='home'),
+    path('signup', views.signup, name='signup'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('approve-match/<int:match_id>/', views.approve_match, name="approve_match"),
     path('notifications/', views.notifications_view, name="notifications"),

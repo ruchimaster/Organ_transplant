@@ -73,13 +73,17 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'Organ_transplant',  # your MySQL database name
+    #     'USER': 'javauser1',          # XAMPP default user
+    #     'PASSWORD': '123java',          # XAMPP default password (usually empty)
+    #     'HOST': 'localhost',
+    #     'PORT': '3307',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Organ_transplant',  # your MySQL database name
-        'USER': 'javauser1',          # XAMPP default user
-        'PASSWORD': '123java',          # XAMPP default password (usually empty)
-        'HOST': 'localhost',
-        'PORT': '3307',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -25,6 +26,9 @@ from .models import (
 # ---------------------------------------------------
 # Signup View
 # ---------------------------------------------------
+
+def home(request):
+    return render(request, "home.html")
 
 def signup(request):
 
@@ -143,21 +147,42 @@ def dashboard(request):
 
 
     else:
+     match_organs(request)   # just call it
 
-        match_organs(request)
+     hospital = HospitalProfile.objects.get(user=request.user)
 
-    tracking_list = OrganTracking.objects.filter(
-        match__match_status="Proposed"
-    ).select_related(
-        "match",
-        "match__donor",
-        "match__receiver"
-    )
+     tracking_list = OrganTracking.objects.filter(
+         match__match_status="Proposed"   # FIXED already
+     ).filter(
+         Q(match__donor__license_number=hospital.license_number) |
+         Q(match__receiver__license_number=hospital.license_number)
+     ).select_related(
+         "match",
+         "match__donor",
+         "match__receiver"
+     ).order_by("-last_updated")
+
+    for t in tracking_list:
+            match = t.match
+            t.show_track_button = False  # Track button only after fully approved
+            t.button_label = "Approve"
+            t.button_disabled = False
+
+            # If this hospital is donor hospital
+            if match.donor.license_number == hospital.license_number:
+                if match.donor_approved:
+                    t.button_label = "Proposed"
+                    t.button_disabled = True
+
+            # If this hospital is receiver hospital
+            elif match.receiver.license_number == hospital.license_number:
+                if match.receiver_approved:
+                    t.button_label = "Proposed"
+                    t.button_disabled = True
 
     return render(request, "dashboard/hospital_dashboard.html", {
-        "tracking_list": tracking_list
-    })
-
+            "tracking_list": tracking_list
+        })
 
 # ---------------------------------------------------
 # Notifications View
@@ -275,7 +300,9 @@ def update_tracking(request, match_id):
         tracking.status = request.POST.get("status")
         tracking.current_location = request.POST.get("current_location")
         tracking.save()
-
+        if tracking.status == "Transplant Completed":
+          match.match_status = "Completed"
+          match.save()
         Notification.objects.create(
             user=match.donor.donor.user,
             message=f"Transport status updated: {tracking.status}"
@@ -313,9 +340,9 @@ def compute_priority(req, donor):
     score = 0
 
     urgency_weight = {
-        "high": 10,
-        "medium": 5,
-        "low": 1
+        "high": 100,
+        "medium": 50,
+        "low": 10
     }
 
     score += urgency_weight.get(req.urgency_level, 0)
@@ -355,111 +382,131 @@ def match_organs(request):
     donations = DonationRequest.objects.filter(status="Available")
     requests = list(OrganRequest.objects.filter(status="Pending"))
 
-    for donation in donations:
+    for req in requests:
 
-        donor_count = OrganMatch.objects.filter(
-            donor=donation,
-            match_status="Proposed"
-        ).count()
+        best_candidate = None
+        best_score = -1
 
-        if donor_count >= 3:
+        # Check existing match for this receiver
+        existing_match = OrganMatch.objects.filter(receiver=req).first()
+
+        # If already approved → skip completely
+        if existing_match and existing_match.match_status == "Approved":
             continue
 
-        OrganMatch.objects.filter(
-            donor=donation,
-            match_status="Proposed"
-        ).update(match_status="Proposed")
+        for donation in donations:
 
-        candidates = []
+            # Skip donor if already approved somewhere else
+            donor_has_approved = OrganMatch.objects.filter(
+                donor=donation,
+                match_status="Approved"
+            ).exists()
 
-        for req in requests:
-
-            receiver_count = OrganMatch.objects.filter(
-                receiver=req,
-                match_status="Proposed"
-            ).count()
-
-            if receiver_count >= 3:
+            if donor_has_approved:
                 continue
 
+            # Organ check
             if donation.organ.lower() != req.organ_required.lower():
                 continue
 
+            # Blood compatibility
             if req.blood_group not in BLOOD_COMPATIBILITY.get(donation.blood_group, []):
                 continue
 
             score = compute_priority(req, donation)
 
-            candidates.append((score, donation, req))
+            if score > best_score:
+                best_score = score
+                best_candidate = donation
 
-        if candidates:
+        if best_candidate:
 
-            candidates.sort(reverse=True, key=lambda x: x[0])
+            # If match exists → compare and replace
+            if existing_match:
 
-            _, best_donation, best_req = candidates[0]
+                old_score = compute_priority(
+                    existing_match.receiver,
+                    existing_match.donor
+                )
 
-            match, created = OrganMatch.objects.get_or_create(
-                donor=best_donation,
-                receiver=best_req
-            )
+                if best_score > old_score:
+                    existing_match.donor = best_candidate
+                    existing_match.match_status = "Proposed"
+                    existing_match.save()
 
-            if created:
+                    Notification.objects.create(
+                        user=req.receiver.user,
+                        message="A better donor match has been found for you."
+                    )
 
-                match.match_status = "Proposed"
-                match.save()
+            else:
+                # No match → create new
+                match = OrganMatch.objects.create(
+                    donor=best_candidate,
+                    receiver=req,
+                    match_status="Proposed"
+                )
 
                 OrganTracking.objects.get_or_create(match=match)
 
                 Notification.objects.create(
-                    user=best_donation.donor.user,
+                    user=best_candidate.donor.user,
                     message="A possible organ match has been proposed."
                 )
 
                 Notification.objects.create(
-                    user=best_req.receiver.user,
+                    user=req.receiver.user,
                     message="A possible organ match was found and is awaiting hospital approval."
                 )
 
-    matches = OrganMatch.objects.select_related(
-        "donor", "receiver"
-    ).order_by("-id")
+    matches = list(OrganMatch.objects.select_related(
+    "donor", "receiver"
+))
+
+# sort using priority
+    matches.sort(
+    key=lambda m: compute_priority(m.receiver, m.donor),
+    reverse=True
+)
 
     return render(request, "dashboard/match_results.html", {
         "matches": matches
     })
 
-
 # ---------------------------------------------------
 # Approve Match
 # ---------------------------------------------------
-
 @login_required
 def approve_match(request, match_id):
-
     match = get_object_or_404(OrganMatch, id=match_id)
+    hospital = HospitalProfile.objects.get(user=request.user)
 
     donation = match.donor
     receiver_req = match.receiver
 
-    match.match_status = "Approved"
+    # Approve for this hospital only
+    if hospital.license_number == donation.license_number:
+        match.donor_approved = True
+    if hospital.license_number == receiver_req.license_number:
+        match.receiver_approved = True
+
+    # If both approved → final approval and status updates
+    if match.donor_approved and match.receiver_approved:
+        match.match_status = "Approved"
+        donation.status = "Matched"
+        receiver_req.status = "Matched"
+
+        donation.save()
+        receiver_req.save()
+
+        # Delete other conflicting matches
+        OrganMatch.objects.filter(donor=donation).exclude(id=match.id).delete()
+        OrganMatch.objects.filter(receiver=receiver_req).exclude(id=match.id).delete()
+
     match.save()
 
-    donation.status = "Matched"
-    receiver_req.status = "Matched"
-
-    donation.save()
-    receiver_req.save()
-
-    Notification.objects.create(
-        user=receiver_req.receiver.user,
-        message="Your organ match has been approved by hospital."
-    )
-
     return redirect("dashboard")
-
-
-    return render(request, "dashboard/track_organ.html", {"tracking": tracking})
-    from .models import OrganTracking
+from .models import OrganTracking
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
@@ -476,13 +523,18 @@ def match_history(request):
     if request.user.role != "hospital":
         return redirect("dashboard")
 
+    hospital = HospitalProfile.objects.get(user=request.user)
+
     tracking_list = OrganTracking.objects.filter(
-        match__match_status="Approved"
-    ).select_related(
-        "match",
-        "match__donor",
-        "match__receiver"
-    ).order_by("-last_updated")
+    match__match_status__in=["Approved", "Completed"]
+).filter(
+    Q(match__donor__license_number=hospital.license_number) |
+    Q(match__receiver__license_number=hospital.license_number)
+).select_related(
+    "match",
+    "match__donor",
+    "match__receiver"
+).order_by("-last_updated")
 
     return render(request, "dashboard/match_history.html", {
         "tracking_list": tracking_list
