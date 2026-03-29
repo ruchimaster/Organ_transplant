@@ -1,0 +1,14 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Receiver Dashboard</h2>
+
+<h3>Your Requests</h3>
+
+<ul>
+  {% for r in requests %}
+  <li>{{ r.organ_required }} - {{ r.status }}</li>
+  {% empty %}
+  <li>No organ requests yet</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'dashboard' %}">Back to Dashboard</a>
+{% endblock %}

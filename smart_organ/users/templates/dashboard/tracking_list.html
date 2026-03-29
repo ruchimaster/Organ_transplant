@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h4>Organ Tracking</h4>
+{% if tracking_list %}
+<table class="table table-bordered mt-3">
+  <thead>
+    <tr>
+      <th>Organ</th>
+      <th>Donor</th>
+      <th>Receiver</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tracking_list %}
+    <tr>
+      <td>{{ t.match.donor.organ }}</td>
+      <td>{{ t.match.donor.donor.user.username }}</td>
+      <td>{{ t.match.receiver.receiver.user.username }}</td>
+      <td>{{ t.status }}</td>
+      <td>
+        <a href="{% url 'view_tracking' t.match.id %}" class="btn btn-sm btn-primary">
+          View
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No tracking available.</p>
+{% endif %}
+{% endblock %}

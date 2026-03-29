@@ -4,121 +4,99 @@
   <head>
     <meta charset="UTF-8" />
     <title>Smart Organ Transplant System</title>
-
     <!-- Bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-
     <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
-
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-
-    <style>
-      body {
-        background: #f4f6fb;
-      }
-
-      .sidebar {
-        height: 100vh;
-        background: #1e293b;
-        color: white;
-        padding-top: 20px;
-      }
-
-      .sidebar a {
-        color: white;
-        display: block;
-        padding: 12px;
-        text-decoration: none;
-      }
-
-      .sidebar a:hover {
-        background: #334155;
-      }
-
-      .navbar {
-        background: #0f172a;
-      }
-
-      .navbar-brand {
-        color: white;
-        font-weight: bold;
-      }
-
-      .card {
-        border: none;
-        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
-      }
-    </style>
   </head>
-
   <body>
     <!-- NAVBAR -->
-
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand">
-          <i class="fa-solid fa-heart"></i>
-          Smart Organ Transplant
-        </a>
-
-        <div class="ms-auto">
-          <a href="{% url 'login' %}" class="btn btn-light me-2"> Login </a>
-
-          <a href="{% url 'signup' %}" class="btn btn-warning"> Signup </a>
-        </div>
+    <nav class="navbar navbar-light bg-white shadow-sm px-4">
+      <span class="navbar-brand fw-bold text-primary">
+        <i class="fa-solid fa-heart"></i> Smart Organ Transplant
+      </span>
+      <div>
+        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm me-2"
+          >Login</a
+        >
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Signup</a>
       </div>
     </nav>
 
-    <div class="container-fluid">
+    <!-- MAIN LAYOUT -->
+    <div class="container-fluid px-5 mt-4">
       <div class="row">
         <!-- SIDEBAR -->
+        {% if user.is_authenticated %}
+        <div class="col-md-4 col-lg-3">
+          <div class="card sidebar-card">
+            <h6 class="text-center mb-3 text-primary">Navigation</h6>
 
-        <div class="col-md-2 sidebar">
-          <h5 class="text-center">Dashboard</h5>
+            <a href="{% url 'dashboard' %}" class="nav-link">
+              <i class="fa-solid fa-chart-line me-2"></i> Dashboard
+            </a>
 
-          <a href="{% url 'dashboard' %}">
-            <i class="fa-solid fa-chart-line"></i> Dashboard
-          </a>
+            {% if user.role == "donor" %}
+            <a href="{% url 'total_donor_requests' %}" class="nav-link">
+              <i class="fa-solid fa-list-check me-2"></i> Total Requests
+            </a>
+            <a href="{% url 'contact_hospital' %}" class="nav-link">
+              <i class="fa-solid fa-envelope me-2"></i> Contact Hospital
+            </a>
 
-          <a href="{% url 'match_organs' %}">
-            <i class="fa-solid fa-link"></i> Match Organs
-          </a>
+            {% elif user.role == "receiver" %}
+            <a href="{% url 'total_receiver_requests' %}" class="nav-link">
+              <i class="fa-solid fa-list-check me-2"></i> Total Requests
+            </a>
+            <a href="{% url 'tracking_list' %}" class="nav-link">
+              <i class="fa-solid fa-truck me-2"></i> Track Organ
+            </a>
+            <a href="{% url 'contact_hospital' %}" class="nav-link">
+              <i class="fa-solid fa-envelope me-2"></i> Contact Hospital
+            </a>
+            <a href="{% url 'hospital_messages' %}" class="nav-link">
+              <i class="fa-solid fa-envelope me-2"></i> Message to Hospital
+            </a>
 
-          <a href="{% url 'urgent_requests' %}">
-            <i class="fa-solid fa-triangle-exclamation"></i> Urgent Requests
-          </a>
-
-          <a href="{% url 'match_history' %}">
-            <i class="fa-solid fa-clock-rotate-left"></i> Match History
-          </a>
-
-          <a href="{% url 'notifications' %}">
-            <i class="fa-solid fa-bell"></i> Notifications
-          </a>
-
-          <a href="{% url 'update_organ_status' %}">
-            <i class="fa-solid fa-pen"></i> Update Organ Status
-          </a>
-
-          <a href="{% url 'contact_hospital'  %}">
-    <i class="fa-solid fa-envelope"></i> Contact Hospital
-</a>
-<a href="{% url 'hospital_messages' %}">
-    <i class="fa-solid fa-envelope"></i> Messages
-</a>
+            {% elif user.role == "hospital" %}
+            <a href="{% url 'match_organs' %}" class="nav-link">
+              <i class="fa-solid fa-link me-2"></i> Match Organs
+            </a>
+            <a href="{% url 'urgent_requests' %}" class="nav-link">
+              <i class="fa-solid fa-triangle-exclamation me-2"></i> Urgent
+              Requests
+            </a>
+            <a href="{% url 'match_history' %}" class="nav-link">
+              <i class="fa-solid fa-clock-rotate-left me-2"></i> Match History
+            </a>
+            <a href="{% url 'tracking_list' %}" class="nav-link">
+              <i class="fa-solid fa-truck me-2"></i> Track Organ
+            </a>
+            <a href="{% url 'update_organ_status' %}" class="nav-link">
+              <i class="fa-solid fa-pen me-2"></i> Update Organ Status
+            </a>
+            <a href="{% url 'hospital_messages' %}" class="nav-link">
+              <i class="fa-solid fa-envelope me-2"></i> Messages
+            </a>
+            {% endif %}
+          </div>
         </div>
+        {% endif %}
 
         <!-- MAIN CONTENT -->
-
-        <div class="col-md-10 p-4">{% block content %} {% endblock %}</div>
+        <div class="col-md-8 col-lg-9">
+          <div class="card main-card p-4">
+            {% block content %}{% endblock %}
+          </div>
+        </div>
       </div>
     </div>
   </body>

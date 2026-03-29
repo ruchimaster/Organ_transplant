@@ -2,8 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
-    # Signup page
+    
     path('', views.signup, name='signup'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('approve-match/<int:match_id>/', views.approve_match, name="approve_match"),
@@ -18,5 +17,7 @@ urlpatterns = [
     path('update-organ-status/', views.update_organ_status, name='update_organ_status'),
     path('contact-hospital/', views.contact_hospital, name='contact_hospital'),
     path('hospital/messages/', views.hospital_messages, name='hospital_messages'),
-
+    path('total-receiver-requests/', views.total_receiver_requests, name='total_receiver_requests'),
+    path('total-donor-requests/', views.total_donor_requests, name='total_donor_requests'),
+    path('tracking/', views.tracking_list, name='tracking_list'),
 ]

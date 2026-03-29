@@ -1,16 +1,94 @@
+/* 🌟 Page background */
 body {
-  background: #f4f6fb;
+  background-color: #eaf4ff;
+  font-family: "Segoe UI", sans-serif;
 }
 
+html,
+body {
+  height: 100%;
+}
+/* Navbar */
+.navbar {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Layout spacing */
+.container-fluid {
+  max-width: 1150px;
+}
+
+/* Space between sidebar & content */
+.row {
+  gap: 24px;
+  align-items: stretch; /* 🔥 makes sidebar full height */
+}
+
+/* 🌟 Sidebar Card */
+.sidebar-card {
+  border-radius: 16px;
+  padding: 28px;
+  background: #ffffff;
+  min-height: 85vh; /* long sidebar */
+  height: 100%; /* fill column */
+  display: flex;
+  flex-direction: column;
+  /* stretch content */
+}
+
+/* 🌟 Main Content Card */
+.main-card {
+  border-radius: 18px;
+  background: #ffffff;
+  min-height: 520px;
+}
+
+/* 🌟 Card shadow (clean soft UI) */
 .card {
   border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* 🌟 Navigation links */
 .nav-link {
-  color: #333;
+  display: block;
+  padding: 12px 14px;
+  margin: 6px 0;
+  color: #334155;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
+/* Hover effect */
 .nav-link:hover {
-  background: #ddd;
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+/* 🌟 Fix form spacing inside card */
+.main-card form,
+.main-card input,
+.main-card select,
+.main-card textarea {
+  margin-bottom: 12px;
+}
+
+/* 🌟 Make textarea nicer */
+textarea {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* 🌟 Inputs */
+input,
+select {
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+/* 🌟 Button */
+button,
+.btn {
+  border-radius: 8px;
 }

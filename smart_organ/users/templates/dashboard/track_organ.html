@@ -1,3 +1,4 @@
+{% extends 'base.html' %} {% block content %}
 <h2>Organ Tracking</h2>
 
 {% if error %}
@@ -17,8 +18,5 @@
 <p>Location: {{ tracking.current_location }}</p>
 <p>Last Updated: {{ tracking.last_updated }}</p>
 
-{% if user.role == "hospital" %}
-<a href="{% url 'update_tracking' tracking.match.id %}">
-  <button>Update Tracking</button>
-</a>
-{% endif %} {% endif %}
+{% endif %}
+{% endblock %}
