@@ -3,15 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-
-from .forms import (
-    UserSignUpForm,
-    PersonProfileForm,
-    HospitalProfileForm,
-    OrganRequestForm,
-    DonationRequestForm
-)
-
+from django.contrib import messages
+from .models import User
 from .models import (
     PersonProfile,
     HospitalProfile,
@@ -22,13 +15,26 @@ from .models import (
     Notification,
     ContactMessage
 )
+from .forms import (
+    UserSignUpForm,
+    PersonProfileForm,
+    HospitalProfileForm,
+    OrganRequestForm,
+    DonationRequestForm
+)
+
 
 # ---------------------------------------------------
-# Signup View
+# Home View
 # ---------------------------------------------------
 
 def home(request):
     return render(request, "home.html")
+
+
+# ---------------------------------------------------
+# Signup View
+# ---------------------------------------------------
 
 def signup(request):
 
@@ -44,14 +50,11 @@ def signup(request):
             role = user_form.cleaned_data["role"]
 
             if role in ["donor", "receiver"]:
-
                 if person_form.is_valid():
                     profile = person_form.save(commit=False)
                     profile.user = user
                     profile.save()
-
             else:
-
                 if hospital_form.is_valid():
                     profile = hospital_form.save(commit=False)
                     profile.user = user
@@ -76,14 +79,10 @@ def login_view(request):
     form = AuthenticationForm(request, data=request.POST or None)
 
     if request.method == "POST":
-
         if form.is_valid():
-
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
-
             user = authenticate(username=username, password=password)
-
             if user:
                 login(request, user)
                 return redirect("dashboard")
@@ -101,18 +100,16 @@ def dashboard(request):
     user = request.user
 
     if user.role == "donor":
-
+        hospitals = HospitalProfile.objects.all()
         profile = PersonProfile.objects.get(user=user)
 
         if request.method == "POST":
             form = DonationRequestForm(request.POST, request.FILES)
-
             if form.is_valid():
                 donation = form.save(commit=False)
                 donation.donor = profile
                 donation.save()
                 return redirect("total_donor_requests")
-
         else:
             form = DonationRequestForm()
 
@@ -120,23 +117,21 @@ def dashboard(request):
 
         return render(request, "dashboard/donor_dashboard.html", {
             "form": form,
-            "donations": donations
+            "donations": donations,
+            "hospitals": hospitals
         })
 
-
     elif user.role == "receiver":
-
         profile = PersonProfile.objects.get(user=user)
+        hospitals = HospitalProfile.objects.all()
 
         if request.method == "POST":
             form = OrganRequestForm(request.POST, request.FILES)
-
             if form.is_valid():
                 req = form.save(commit=False)
                 req.receiver = profile
                 req.save()
                 return redirect("total_receiver_requests")
-
         else:
             form = OrganRequestForm()
 
@@ -144,47 +139,46 @@ def dashboard(request):
 
         return render(request, "dashboard/receiver_dashboard.html", {
             "form": form,
-            "requests": requests
+            "requests": requests,
+            "hospitals": hospitals
         })
 
-
     else:
-     match_organs(request)   # just call it
+        match_organs(request)
 
-     hospital = HospitalProfile.objects.get(user=request.user)
+        hospital = HospitalProfile.objects.get(user=request.user)
 
-     tracking_list = OrganTracking.objects.filter(
-         match__match_status="Proposed"   # FIXED already
-     ).filter(
-         Q(match__donor__license_number=hospital.license_number) |
-         Q(match__receiver__license_number=hospital.license_number)
-     ).select_related(
-         "match",
-         "match__donor",
-         "match__receiver"
-     ).order_by("-last_updated")
+        tracking_list = OrganTracking.objects.filter(
+            match__match_status="Proposed"
+        ).filter(
+            Q(match__donor__license_number=hospital.license_number) |
+            Q(match__receiver__license_number=hospital.license_number)
+        ).select_related(
+            "match",
+            "match__donor",
+            "match__receiver"
+        ).order_by("-last_updated")
 
-    for t in tracking_list:
+        for t in tracking_list:
             match = t.match
-            t.show_track_button = False  # Track button only after fully approved
+            t.show_track_button = False
             t.button_label = "Approve"
             t.button_disabled = False
 
-            # If this hospital is donor hospital
             if match.donor.license_number == hospital.license_number:
                 if match.donor_approved:
                     t.button_label = "Proposed"
                     t.button_disabled = True
 
-            # If this hospital is receiver hospital
             elif match.receiver.license_number == hospital.license_number:
                 if match.receiver_approved:
                     t.button_label = "Proposed"
                     t.button_disabled = True
 
-    return render(request, "dashboard/hospital_dashboard.html", {
+        return render(request, "dashboard/hospital_dashboard.html", {
             "tracking_list": tracking_list
         })
+
 
 # ---------------------------------------------------
 # Notifications View
@@ -210,9 +204,7 @@ def notifications_view(request):
 
 def urgent_requests(request):
 
-    urgent = OrganRequest.objects.filter(
-        urgency_level="high"
-    )
+    urgent = OrganRequest.objects.filter(urgency_level="high")
 
     return render(request, "dashboard/urgent_requests.html", {
         "urgent": urgent
@@ -220,42 +212,24 @@ def urgent_requests(request):
 
 
 # ---------------------------------------------------
-# Tracking View
-# ---------------------------------------------------
-
-
-
-# ---------------------------------------------------
 # Update Status
 # ---------------------------------------------------
-
 
 @login_required
 def update_status(request, donation_id):
 
-
     donation = get_object_or_404(DonationRequest, id=donation_id)
-
 
     if request.method == "POST":
         donation.status = request.POST.get("status")
         donation.save()
 
-
     return redirect("dashboard")
 
 
-
 # ---------------------------------------------------
-# Contact Hospital
+# View Tracking
 # ---------------------------------------------------
-
-
-# ---------------------------------------------------
-# Tracking View
-# ---------------------------------------------------
-
-
 
 @login_required
 def view_tracking(request, match_id):
@@ -288,6 +262,11 @@ def view_tracking(request, match_id):
         "status_order": STATUS_ORDER
     })
 
+
+# ---------------------------------------------------
+# Update Tracking
+# ---------------------------------------------------
+
 @login_required
 def update_tracking(request, match_id):
 
@@ -298,18 +277,18 @@ def update_tracking(request, match_id):
         return redirect("dashboard")
 
     if request.method == "POST":
-
         tracking.status = request.POST.get("status")
         tracking.current_location = request.POST.get("current_location")
         tracking.save()
+
         if tracking.status == "Transplant Completed":
-          match.match_status = "Completed"
-          match.save()
+            match.match_status = "Completed"
+            match.save()
+
         Notification.objects.create(
             user=match.donor.donor.user,
             message=f"Transport status updated: {tracking.status}"
         )
-
         Notification.objects.create(
             user=match.receiver.receiver.user,
             message=f"Transport status updated: {tracking.status}"
@@ -319,19 +298,21 @@ def update_tracking(request, match_id):
 
     STATUS_LIST = [choice[0] for choice in OrganTracking.STATUS_CHOICES]
     LOCATION_LIST = [
-    "At Donor Hospital",
-    "Ambulance - City Route",
-    "Airport - Departure",
-    "In Flight",
-    "Airport - Arrival",
-    "Ambulance - Receiver Route",
-    "At Receiver Hospital"
-]
+        "At Donor Hospital",
+        "Ambulance - City Route",
+        "Airport - Departure",
+        "In Flight",
+        "Airport - Arrival",
+        "Ambulance - Receiver Route",
+        "At Receiver Hospital"
+    ]
+
     return render(request, "dashboard/update_tracking.html", {
         "tracking": tracking,
         "statuses": STATUS_LIST,
         "locations": LOCATION_LIST
     })
+
 
 # ---------------------------------------------------
 # Priority Calculation
@@ -375,7 +356,7 @@ BLOOD_COMPATIBILITY = {
 
 
 # ---------------------------------------------------
-# Matching Engine (FINAL VERSION)
+# Matching Engine
 # ---------------------------------------------------
 
 @login_required
@@ -389,16 +370,13 @@ def match_organs(request):
         best_candidate = None
         best_score = -1
 
-        # Check existing match for this receiver
         existing_match = OrganMatch.objects.filter(receiver=req).first()
 
-        # If already approved → skip completely
         if existing_match and existing_match.match_status == "Approved":
             continue
 
         for donation in donations:
 
-            # Skip donor if already approved somewhere else
             donor_has_approved = OrganMatch.objects.filter(
                 donor=donation,
                 match_status="Approved"
@@ -407,11 +385,9 @@ def match_organs(request):
             if donor_has_approved:
                 continue
 
-            # Organ check
             if donation.organ.lower() != req.organ_required.lower():
                 continue
 
-            # Blood compatibility
             if req.blood_group not in BLOOD_COMPATIBILITY.get(donation.blood_group, []):
                 continue
 
@@ -423,9 +399,7 @@ def match_organs(request):
 
         if best_candidate:
 
-            # If match exists → compare and replace
             if existing_match:
-
                 old_score = compute_priority(
                     existing_match.receiver,
                     existing_match.donor
@@ -442,7 +416,6 @@ def match_organs(request):
                     )
 
             else:
-                # No match → create new
                 match = OrganMatch.objects.create(
                     donor=best_candidate,
                     receiver=req,
@@ -455,44 +428,41 @@ def match_organs(request):
                     user=best_candidate.donor.user,
                     message="A possible organ match has been proposed."
                 )
-
                 Notification.objects.create(
                     user=req.receiver.user,
                     message="A possible organ match was found and is awaiting hospital approval."
                 )
 
-    matches = list(OrganMatch.objects.select_related(
-    "donor", "receiver"
-))
-
-# sort using priority
+    matches = list(OrganMatch.objects.select_related("donor", "receiver"))
     matches.sort(
-    key=lambda m: compute_priority(m.receiver, m.donor),
-    reverse=True
-)
+        key=lambda m: compute_priority(m.receiver, m.donor),
+        reverse=True
+    )
 
     return render(request, "dashboard/match_results.html", {
         "matches": matches
     })
 
+
 # ---------------------------------------------------
 # Approve Match
 # ---------------------------------------------------
+
 @login_required
 def approve_match(request, match_id):
+
     match = get_object_or_404(OrganMatch, id=match_id)
     hospital = HospitalProfile.objects.get(user=request.user)
 
     donation = match.donor
     receiver_req = match.receiver
 
-    # Approve for this hospital only
     if hospital.license_number == donation.license_number:
         match.donor_approved = True
+
     if hospital.license_number == receiver_req.license_number:
         match.receiver_approved = True
 
-    # If both approved → final approval and status updates
     if match.donor_approved and match.receiver_approved:
         match.match_status = "Approved"
         donation.status = "Matched"
@@ -501,18 +471,21 @@ def approve_match(request, match_id):
         donation.save()
         receiver_req.save()
 
-        # Delete other conflicting matches
+        Notification.objects.create(
+            user=donation.donor.user,
+            message=f"Great news! Your organ donation ({donation.organ}) has been approved by both hospitals. The transplant process will begin soon."
+        )
+        Notification.objects.create(
+            user=receiver_req.receiver.user,
+            message=f"Great news! Your organ request ({receiver_req.organ_required}) has been approved by both hospitals. The transplant process will begin soon."
+        )
+
         OrganMatch.objects.filter(donor=donation).exclude(id=match.id).delete()
         OrganMatch.objects.filter(receiver=receiver_req).exclude(id=match.id).delete()
 
     match.save()
 
     return redirect("dashboard")
-from .models import OrganTracking
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
-
 
 
 # ---------------------------------------------------
@@ -528,47 +501,18 @@ def match_history(request):
     hospital = HospitalProfile.objects.get(user=request.user)
 
     tracking_list = OrganTracking.objects.filter(
-    match__match_status__in=["Approved", "Completed"]
-).filter(
-    Q(match__donor__license_number=hospital.license_number) |
-    Q(match__receiver__license_number=hospital.license_number)
-).select_related(
-    "match",
-    "match__donor",
-    "match__receiver"
-).order_by("-last_updated")
+        match__match_status__in=["Approved", "Completed"]
+    ).filter(
+        Q(match__donor__license_number=hospital.license_number) |
+        Q(match__receiver__license_number=hospital.license_number)
+    ).select_related(
+        "match",
+        "match__donor",
+        "match__receiver"
+    ).order_by("-last_updated")
 
     return render(request, "dashboard/match_history.html", {
         "tracking_list": tracking_list
-    })
-
-
-    # ---------------------------------------------------
-# Contact Hospital
-# ---------------------------------------------------
-from django.contrib import messages  # ensure messages is imported
-
-@login_required
-def contact_hospital(request, hospital_id):
-
-    hospital = get_object_or_404(HospitalProfile, id=hospital_id)
-
-    if request.method == "POST":
-        message_text = request.POST.get("message")
-
-        if message_text:
-            ContactMessage.objects.create(
-                sender=request.user,
-                hospital=hospital,
-                message=message_text
-            )
-            messages.success(request, "Message sent successfully!")
-            return redirect("dashboard")
-        else:
-            messages.error(request, "Message cannot be empty!")
-
-    return render(request, "dashboard/contact_hospital.html", {
-        "hospital": hospital
     })
 
 
@@ -578,6 +522,7 @@ def contact_hospital(request, hospital_id):
 
 @login_required
 def update_organ_status(request):
+
     user = request.user
 
     if user.role != "hospital":
@@ -603,63 +548,48 @@ def update_organ_status(request):
 
         try:
             organ_tracking = OrganTracking.objects.get(id=tracking_id)
-
             organ_tracking.status = new_status
             organ_tracking.current_location = new_location
             organ_tracking.save()
-
             messages.success(request, "Tracking updated successfully!")
 
         except OrganTracking.DoesNotExist:
             messages.error(request, "Invalid Organ Tracking ID")
 
-    # ✅ Split data
     active_organs = OrganTracking.objects.exclude(status="Transplant Completed")
     completed_organs = OrganTracking.objects.filter(status="Transplant Completed")
 
     return render(request, "users/update_organ_status.html", {
-        "organs": active_organs,  # dropdown uses active only
+        "organs": active_organs,
         "active_organs": active_organs,
         "completed_organs": completed_organs,
         "statuses": STATUS_LIST,
         "locations": LOCATION_LIST
     })
 
+
 def get_status_class(status):
 
     if status == "Transplant Completed":
         return "status-green"
-
     elif status == "In Transit":
         return "status-orange"
-
     elif status == "Picked Up":
         return "status-blue"
-
     elif status == "Ready for Transport":
         return "status-yellow"
 
     return "status-gray"
-@login_required
-def hospital_messages(request):
 
-    if request.user.role != "hospital":
-        return redirect("dashboard")
 
-    hospital = HospitalProfile.objects.get(user=request.user)
-
-    messages = ContactMessage.objects.filter(hospital=hospital).order_by("-sent_at")
-
-    return render(request, "dashboard/hospital_messages.html", {
-        "messages": messages
-    })
-
+# ---------------------------------------------------
+# Total Requests
+# ---------------------------------------------------
 
 @login_required
 def total_receiver_requests(request):
 
     profile = PersonProfile.objects.get(user=request.user)
-
     requests = OrganRequest.objects.filter(receiver=profile)
 
     return render(request, "dashboard/Total_Receiver_Request.html", {
@@ -671,7 +601,6 @@ def total_receiver_requests(request):
 def total_donor_requests(request):
 
     profile = PersonProfile.objects.get(user=request.user)
-
     donations = DonationRequest.objects.filter(donor=profile)
 
     return render(request, "dashboard/Total_Donor_Request.html", {
@@ -679,8 +608,13 @@ def total_donor_requests(request):
     })
 
 
+# ---------------------------------------------------
+# Tracking List
+# ---------------------------------------------------
+
 @login_required
 def tracking_list(request):
+
     user = request.user
 
     if user.role == "receiver":
@@ -694,9 +628,94 @@ def tracking_list(request):
             "match", "match__donor", "match__receiver"
         )
 
-    else:  # donor sees no tracking
+    else:
         tracking_list = None
 
     return render(request, "dashboard/tracking_list.html", {
         "tracking_list": tracking_list
+    })
+
+
+# ---------------------------------------------------
+# Chat View
+# ---------------------------------------------------
+
+@login_required
+def chat_view(request, hospital_id, user_id=None):
+
+    hospital = get_object_or_404(HospitalProfile, id=hospital_id)
+    current_user = request.user
+
+    if current_user.role == "hospital":
+        if user_id:
+            thread_user = get_object_or_404(User, id=user_id)
+        else:
+            return redirect("hospital_inbox")
+
+        chats = ContactMessage.objects.filter(
+            hospital=hospital
+        ).filter(
+            Q(sender=thread_user) | Q(receiver=thread_user)
+        ).order_by("sent_at")
+
+    else:
+        chats = ContactMessage.objects.filter(
+            hospital=hospital
+        ).filter(
+            Q(sender=current_user) | Q(receiver=current_user)
+        ).order_by("sent_at")
+
+    if request.method == "POST":
+        message_text = request.POST.get("message")
+
+        if message_text:
+            if current_user.role == "hospital":
+                receiver = thread_user
+            else:
+                receiver = hospital.user
+
+            ContactMessage.objects.create(
+                sender=current_user,
+                receiver=receiver,
+                hospital=hospital,
+                message=message_text
+            )
+
+            Notification.objects.create(
+                user=receiver,
+                message=f"New message from {current_user.username}"
+            )
+
+            if current_user.role == "hospital":
+                return redirect("chat_view_with_user", hospital_id=hospital.id, user_id=thread_user.id)
+            else:
+                return redirect("chat_view", hospital_id=hospital.id)
+
+    return render(request, "dashboard/chat.html", {
+        "chats": chats,
+        "hospital": hospital
+    })
+
+
+# ---------------------------------------------------
+# Hospital Inbox
+# ---------------------------------------------------
+
+@login_required
+def hospital_inbox(request):
+
+    if request.user.role != "hospital":
+        return redirect("dashboard")
+
+    hospital = HospitalProfile.objects.get(user=request.user)
+
+    conversations = ContactMessage.objects.filter(
+        hospital=hospital
+    ).values("sender").distinct()
+
+    users = User.objects.filter(id__in=[c["sender"] for c in conversations])
+
+    return render(request, "dashboard/hospital_inbox.html", {
+        "users": users,
+        "hospital": hospital
     })

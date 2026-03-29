@@ -1,0 +1,13 @@
+<h2>Messages</h2>
+
+{% for user in users %}
+    <div>
+        <p>{{ user.username }}</p>
+
+        <a href="{% url 'chat_view' hospital.id %}">
+            Open Chat
+        </a>
+    </div>
+{% empty %}
+    <p>No messages yet</p>
+{% endfor %}

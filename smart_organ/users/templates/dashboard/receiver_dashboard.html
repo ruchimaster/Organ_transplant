@@ -10,5 +10,19 @@
 
 <a href="{% url 'total_receiver_requests' %}">
     <button>View All Requests</button>
+</a><h3>Contact Hospitals</h3>
+
+{% for hospital in hospitals %}
+    <div>
+        <p>{{ hospital.hospital_name }}</p>
+
+        <a href="{% url 'chat_view' hospital.id %}">
+            Contact Hospital
+        </a>
+    </div>
+{% endfor %}
+<a href="{% url 'notifications' %}">
+  <button>View Notifications</button>
 </a>
+
 {% endblock %}

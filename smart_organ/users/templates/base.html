@@ -48,9 +48,7 @@
             <a href="{% url 'total_donor_requests' %}" class="nav-link">
               <i class="fa-solid fa-list-check me-2"></i> Total Requests
             </a>
-            <a href="{% url 'contact_hospital' %}" class="nav-link">
-              <i class="fa-solid fa-envelope me-2"></i> Contact Hospital
-            </a>
+           
 
             {% elif user.role == "receiver" %}
             <a href="{% url 'total_receiver_requests' %}" class="nav-link">
@@ -59,12 +57,8 @@
             <a href="{% url 'tracking_list' %}" class="nav-link">
               <i class="fa-solid fa-truck me-2"></i> Track Organ
             </a>
-            <a href="{% url 'contact_hospital' %}" class="nav-link">
-              <i class="fa-solid fa-envelope me-2"></i> Contact Hospital
-            </a>
-            <a href="{% url 'hospital_messages' %}" class="nav-link">
-              <i class="fa-solid fa-envelope me-2"></i> Message to Hospital
-            </a>
+           
+            
 
             {% elif user.role == "hospital" %}
             <a href="{% url 'match_organs' %}" class="nav-link">
@@ -83,7 +77,7 @@
             <a href="{% url 'update_organ_status' %}" class="nav-link">
               <i class="fa-solid fa-pen me-2"></i> Update Organ Status
             </a>
-            <a href="{% url 'hospital_messages' %}" class="nav-link">
+           <a href="{% url 'hospital_inbox' %}" class="nav-link">
               <i class="fa-solid fa-envelope me-2"></i> Messages
             </a>
             {% endif %}

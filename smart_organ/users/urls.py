@@ -15,9 +15,13 @@ urlpatterns = [
     path('tracking/<int:match_id>/', views.view_tracking, name="view_tracking"),
     path('tracking/<int:match_id>/update/', views.update_tracking, name="update_tracking"),
     path('update-organ-status/', views.update_organ_status, name='update_organ_status'),
-    path('contact-hospital/', views.contact_hospital, name='contact_hospital'),
-    path('hospital/messages/', views.hospital_messages, name='hospital_messages'),
+   path('chat/<int:hospital_id>/', views.chat_view, name='chat_view'),
     path('total-receiver-requests/', views.total_receiver_requests, name='total_receiver_requests'),
     path('total-donor-requests/', views.total_donor_requests, name='total_donor_requests'),
     path('tracking/', views.tracking_list, name='tracking_list'),
+    path('hospital/inbox/', views.hospital_inbox, name='hospital_inbox'),
+
+     path('chat/<int:hospital_id>/', views.chat_view, name='chat_view'),  # for user
+     path('chat/<int:hospital_id>/<int:user_id>/', views.chat_view, name='chat_view_with_user'), 
+     path('hospital/inbox/', views.hospital_inbox, name='hospital_inbox'), # for hospital
 ]

@@ -1,0 +1,22 @@
+<h2>
+    Chat with 
+    {% if request.user.role == "hospital" %}
+        {{ chat_user.username }}
+    {% else %}
+        {{ hospital.hospital_name }}
+    {% endif %}
+</h2>
+
+<div style="border:1px solid black; padding:10px; height:300px; overflow-y:scroll;">
+    {% for chat in chats %}
+        <p>
+            <b>{{ chat.sender.username }}:</b> {{ chat.message }}
+        </p>
+    {% endfor %}
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="message" placeholder="Type message..." required>
+    <button type="submit">Send</button>
+</form>
