@@ -19,10 +19,7 @@ body {
 }
 
 /* Space between sidebar & content */
-.row {
-  gap: 24px;
-  align-items: stretch; /* 🔥 makes sidebar full height */
-}
+
 
 /* 🌟 Sidebar Card */
 .sidebar-card {
